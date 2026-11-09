@@ -1,0 +1,828 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>VoiceLoop</title>
+<link rel="icon" href="/favicon.ico?v=031" sizes="any">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png?v=031">
+<link rel="manifest" href="/manifest.webmanifest?v=031">
+<meta name="theme-color" content="#1d1d1f">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root {
+  --bg: #1d1d1f; --side: #232325; --card: #2a2a2c; --line: #38383b;
+  --text: #ececee; --muted: #a0a0a6; --accent: #4fd1c5; --accent-ink: #0d2b28;
+  --bad: #ff6b6b; --good: #5fd38d;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
+  font: 15px/1.4 "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif; }
+.app { display: grid; grid-template-columns: 200px 1fr; height: 100vh; }
+nav { background: var(--side); border-right: 1px solid var(--line); padding: 20px 12px; display: flex; flex-direction: column; gap: 4px; }
+.logo { display: flex; align-items: center; gap: 10px; font: 800 27px/1 "Segoe UI Variable Display", "Segoe UI", sans-serif; letter-spacing: -1px;
+  color: var(--accent); padding: 4px 8px 20px; border-bottom: 1px solid var(--line); margin-bottom: 12px; }
+.logo img { width: 38px; height: 38px; }
+.logo span { color: var(--text); }
+.logo .word { font-weight: inherit; } /* one flex item, so the gap only sits after the icon */
+nav button { all: unset; display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 9px;
+  font-weight: 600; color: var(--muted); cursor: pointer; }
+nav button svg { width: 20px; height: 20px; flex: none; }
+nav button:hover { background: #2f2f32; color: var(--text); }
+nav button.on { background: var(--accent); color: var(--accent-ink); }
+main { overflow-y: auto; padding: 22px 28px 70px; }
+section { display: none; max-width: 680px; }
+section.on { display: block; }
+h2 { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 22px 4px 8px; }
+h2:first-child { margin-top: 0; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px 18px; min-height: 58px; }
+.row + .row { border-top: 1px solid var(--line); }
+.row label, .row .lbl { font-weight: 600; }
+.hint { display: block; font-weight: 400; font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.ctl { display: flex; align-items: center; gap: 10px; flex: none; }
+input[type=number].num { width: 96px; min-width: 0; text-align: right; font-variant-numeric: tabular-nums; }
+.unit { color: var(--muted); font-size: 13.5px; }
+select, input[type=text], input[type=number] { background: #232325; color: var(--text); border: 1px solid #4a4a4e; border-radius: 8px;
+  padding: 7px 10px; font: inherit; min-width: 250px; }
+select:focus, input[type=text]:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.btn { all: unset; cursor: pointer; padding: 7px 13px; border: 1px solid #4a4a4e; border-radius: 8px; font-weight: 600; background: #232325; white-space: nowrap; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.kbd { padding: 5px 10px; border: 1px solid #4a4a4e; border-radius: 8px; font-weight: 600; background: #232325; }
+input[type=range] { width: 170px; accent-color: var(--accent); }
+.val { width: 52px; text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+input[type=color] { width: 42px; height: 30px; border: 1px solid #4a4a4e; border-radius: 8px; background: none; padding: 2px; cursor: pointer; }
+.switch { position: relative; width: 50px; height: 28px; flex: none; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch span { position: absolute; inset: 0; background: #3c3c40; border-radius: 99px; transition: .15s; cursor: pointer; }
+.switch span::after { content: ""; position: absolute; left: 3px; top: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: .15s; }
+.switch input:checked + span { background: var(--accent); }
+.switch input:checked + span::after { transform: translateX(22px); }
+.status { font-size: 13px; color: var(--muted); }
+.status.ok { color: var(--good); } .status.bad { color: var(--bad); }
+.anchors { display: grid; grid-template-columns: repeat(3, 34px); gap: 6px; padding: 8px; background: #232325; border: 1px solid #4a4a4e; border-radius: 10px; }
+.anchors button { all: unset; height: 22px; border-radius: 5px; background: #38383b; cursor: pointer; }
+.anchors button.on { background: var(--accent); }
+.anchors .gap { grid-column: span 3; height: 18px; }
+.preview { display: flex; justify-content: center; padding: 26px 0 22px; background:
+  repeating-linear-gradient(45deg, #26262a 0 10px, #2b2b2f 10px 20px); border-radius: 12px 12px 0 0; }
+.pill { display: flex; align-items: center; gap: 22px; padding: 0 10px 0 22px; height: 52px; border-radius: 99px; transform-origin: center; }
+.pill.two { flex-direction: column; align-items: stretch; gap: 0; height: 86px; padding: 0 12px 0 18px; border-radius: 24px; }
+.pill .r1 { display: flex; align-items: center; height: 54px; gap: 12px; }
+.pill .name { color: #f0f0f2; font-weight: 600; font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pill .chip { flex: none; height: 26px; padding: 0 11px; border-radius: 99px; background: rgba(255,255,255,.11); color: #c8c8cc; font-size: 12px; font-weight: 600; display: grid; place-items: center; }
+.pill.two .x { margin-left: 0; }
+.pill.two .bars { justify-content: center; height: 28px; margin-top: -6px; }
+.pill .dot { width: 12px; height: 12px; border-radius: 50%; }
+.pill .bars { display: flex; gap: 8.5px; align-items: center; height: 34px; }
+.pill .bars i { width: 4.5px; border-radius: 9px; }
+.pill .x { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,.11); display: grid; place-items: center; color: #d0d0d4; font-size: 15px; }
+.kinds { display: flex; gap: 6px; }
+.kinds .btn.on { border-color: var(--accent); color: var(--accent); }
+footer { position: fixed; left: 200px; right: 0; bottom: 0; display: flex; justify-content: space-between; padding: 10px 28px;
+  background: var(--bg); border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+footer .dotst { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #666; margin-right: 6px; }
+footer .dotst.ok { background: var(--good); } footer .dotst.bad { background: var(--bad); }
+.thread { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 18px; border-top: 1px solid var(--line); }
+.thread .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.thread .when { font-size: 12.5px; color: var(--muted); }
+.thread.muted .name { color: var(--muted); text-decoration: line-through; }
+.trimval { width: 52px; }
+.trimdays-row { min-height: 0; padding: 0 18px 10px; margin-top: -10px; border-top: none !important; justify-content: flex-end; }
+.trimdays { font-size: 12.5px; color: var(--accent); min-height: 17px; }
+.empty { padding: 12px 18px; color: var(--muted); border-top: 1px solid var(--line); font-size: 13.5px; }
+.toast { position: fixed; right: 24px; bottom: 50px; background: var(--accent); color: var(--accent-ink); font-weight: 700;
+  padding: 6px 12px; border-radius: 8px; opacity: 0; transition: opacity .2s; pointer-events: none; }
+.toast.show { opacity: 1; }
+.toast.warn { background: #f6b24e; color: #2b1d05; }
+a.ext { color: var(--accent); text-decoration: none; font-weight: 600; }
+a.ext:hover { text-decoration: underline; }
+code { font-family: "Cascadia Mono", Consolas, monospace; font-size: 13px; color: var(--muted); }
+.pad-wrap { padding: 18px 18px 6px; }
+.pad-svg { width: 100%; height: auto; display: block; }
+.pad-svg .ctl { cursor: pointer; }
+.pad-svg .ctl .face { transition: stroke .12s; }
+.pad-svg .ctl.hl .face { stroke: var(--accent); stroke-width: 3; }
+.pad-svg .ctl.hl text.act { fill: var(--accent); }
+.pad-svg text { font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif; fill: var(--text); }
+.pad-svg .num { fill: var(--muted); font-size: 12px; font-weight: 700; }
+.pad-svg .act { font-size: 13.5px; font-weight: 600; }
+.pad-svg .sub { fill: var(--muted); font-size: 12px; }
+.pad-row.hl { background: #313134; }
+.pad-row .ctl { flex-direction: column; align-items: flex-end; gap: 6px; }
+.pad-err { color: var(--bad); font-size: 12.5px; }
+.pad-dirty { color: #f6b24e; }
+</style>
+</head>
+<body>
+<div class="app">
+  <nav>
+    <div class="logo"><img src="/logo.png" alt=""><b class="word">voice<span>loop</span></b></div>
+    <button data-tab="general" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v18M8 7v10M4 10v4M16 7v10M20 10v4"/></svg>General</button>
+    <button data-tab="threadsec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M8.5 10.5h7M8.5 13.5h4.5"/></svg>Threads</button>
+    <button data-tab="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="8" width="20" height="8" rx="4"/><circle cx="7" cy="12" r="1.5" fill="currentColor"/></svg>Pill</button>
+    <button data-tab="voice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>Voice</button>
+    <button data-tab="sound"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 14v-2a9 9 0 0 1 18 0v2"/><rect x="2" y="14" width="5" height="7" rx="2"/><rect x="17" y="14" width="5" height="7" rx="2"/></svg>Sound</button>
+    <button data-tab="pad"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="2.5"/><circle cx="6.5" cy="12" r="2"/><rect x="11" y="10" width="3" height="4" rx=".6"/><rect x="16" y="10" width="3" height="4" rx=".6"/></svg>Macropad</button>
+    <button data-tab="about"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>About</button>
+  </nav>
+
+  <main>
+    <section id="general" class="on">
+      <h2>Voice mode</h2>
+      <div class="card">
+        <div class="row"><div class="lbl">Read Claude's replies aloud<span class="hint">Only the T3 thread you last typed into is spoken</span></div>
+          <label class="switch"><input type="checkbox" id="voice_on"><span></span></label></div>
+        <div class="row"><div class="lbl">Chimes when voice mode is off<span class="hint">Still chime for questions and approvals, without speech</span></div>
+          <label class="switch"><input type="checkbox" data-k="chimes_when_off"><span></span></label></div>
+        <div class="row"><div class="lbl">Mute while the PC is locked<span class="hint">Locking Windows stops speech, and nothing plays until you unlock. Replies that arrive meanwhile are dropped</span></div>
+          <label class="switch"><input type="checkbox" data-k="mute_when_locked"><span></span></label></div>
+      </div>
+      <h2>Shortcuts</h2>
+      <div class="card">
+        <div class="row"><div class="lbl">Voice mode on or off</div><span class="kbd">Ctrl + Alt + V</span></div>
+        <div class="row"><div class="lbl">Stop speaking<span class="hint">Or click the ✕ on the pill. Map a macro key to this if you like</span></div><span class="kbd">Ctrl + Alt + X</span></div>
+        <div class="row"><div class="lbl">Stop right now</div><button class="btn" id="stop">Stop</button></div>
+      </div>
+      <h2>Settings backup</h2>
+      <div class="card">
+        <div class="row"><div class="lbl">Export<span class="hint">Saves every setting here, voice mode and your muted threads to a file you choose. The pad profile is saved next to it as its own XML file. The connection token is never included</span></div>
+          <button class="btn" id="setexport">Export…</button></div>
+        <div class="row"><div class="lbl">Import<span class="hint">Replaces all settings with the ones in an exported file. The current settings are saved first, dated, in the settings-backups folder. Import the pad profile separately, from the Macropad tab</span></div>
+          <button class="btn" id="setimport">Import…</button><input type="file" id="setfile" accept=".json,application/json" style="display:none"></div>
+      </div>
+    </section>
+
+    <section id="threadsec">
+      <h2>Which threads speak</h2>
+      <div class="card">
+        <div class="row"><label for="tmode">Speak replies from</label>
+          <select id="tmode" data-k="thread_mode">
+            <option value="current">Only the thread I last typed into</option>
+            <option value="all">All threads, except muted ones</option>
+          </select></div>
+        <div class="row"><div class="lbl">Muting a thread<span class="hint">Click "Mute thread" on the pill, use the switches below, or type <b>/mute</b> or <b>/unmute</b> in the thread in T3. <b>/resend</b> reads a thread's last reply again</span></div></div>
+      </div>
+      <h2>Threads</h2>
+      <div class="card">
+        <div class="row"><div class="lbl">Forget threads not heard for<span class="hint">Muted threads are always kept, so they stay quiet</span></div>
+          <div class="ctl"><input type="range" min="1" max="72" step="1" data-k="thread_trim_hours"><span class="val trimval" data-v="thread_trim_hours" data-unit=" h"></span></div></div>
+        <div class="row trimdays-row"><span></span><span class="trimdays" id="trimdays"></span></div>
+        <div id="threadlist"></div>
+      </div>
+    </section>
+
+    <section id="pill">
+      <h2>Preview</h2>
+      <div class="card">
+        <div class="preview"><div class="pill" id="pv"></div></div>
+        <div class="row"><div class="lbl">Show on screen<span class="hint">Plays a sample so you can see the real pill</span></div>
+          <div class="kinds"><button class="btn" data-preview="speech">Reply</button><button class="btn" data-preview="question">Question</button><button class="btn" data-preview="approval">Approval</button></div></div>
+      </div>
+      <h2>Thread name</h2>
+      <div class="card">
+        <div class="row"><div class="lbl">Show the thread name<span class="hint">With a "Mute thread" button beside it</span></div>
+          <label class="switch"><input type="checkbox" data-k="show_thread_name"><span></span></label></div>
+        <div class="row"><div class="lbl">Fit the pill to the whole name<span class="hint">Grows as wide as the name needs, no cutting off</span></div>
+          <label class="switch"><input type="checkbox" data-k="fit_thread_name"><span></span></label></div>
+        <div class="row" id="maxrow"><div class="lbl">Longest name before it's cut off</div>
+          <div class="ctl"><input type="range" min="100" max="900" step="10" data-k="max_title"><span class="val" data-v="max_title" data-unit=" px"></span></div></div>
+      </div>
+      <h2>Position</h2>
+      <div class="card">
+        <div class="row"><label for="monitor">Monitor</label><select id="monitor" data-k="monitor"></select></div>
+        <div class="row"><div class="lbl">Corner or edge</div>
+          <div class="anchors" id="anchors">
+            <button data-a="top-left" title="Top left"></button><button data-a="top-centre" title="Top centre"></button><button data-a="top-right" title="Top right"></button>
+            <div class="gap"></div>
+            <button data-a="bottom-left" title="Bottom left"></button><button data-a="bottom-centre" title="Bottom centre"></button><button data-a="bottom-right" title="Bottom right"></button>
+          </div></div>
+        <div class="row"><div class="lbl">Distance from the edge<span class="hint">118 keeps it clear of Handy's pill at the bottom</span></div>
+          <div class="ctl"><input type="range" min="0" max="600" step="2" data-k="offset_y"><span class="val" data-v="offset_y"></span></div></div>
+        <div class="row"><div class="lbl">Shift sideways</div>
+          <div class="ctl"><input type="range" min="-600" max="600" step="2" data-k="offset_x"><span class="val" data-v="offset_x"></span></div></div>
+        <div class="row"><div class="lbl">Size</div>
+          <div class="ctl"><input type="range" min="75" max="150" step="5" data-k="pill_size"><span class="val" data-v="pill_size" data-unit="%"></span></div></div>
+      </div>
+      <h2>Colours</h2>
+      <div class="card">
+        <div class="row"><div class="lbl">Reply<span class="hint">Claude finished a reply</span></div><input type="color" data-k="speech_colour"></div>
+        <div class="row"><div class="lbl">Question<span class="hint">Claude is asking you something</span></div><input type="color" data-k="question_colour"></div>
+        <div class="row"><div class="lbl">Approval<span class="hint">Claude needs your permission</span></div><input type="color" data-k="approval_colour"></div>
+        <div class="row"><div class="lbl">Pill background</div><input type="color" data-k="pill_colour"></div>
+        <div class="row"><div class="lbl">Background opacity</div>
+          <div class="ctl"><input type="range" min="30" max="100" data-k="pill_opacity"><span class="val" data-v="pill_opacity" data-unit="%"></span></div></div>
+        <div class="row"><div class="lbl">Reset colours</div><button class="btn" id="resetcol">Reset</button></div>
+      </div>
+    </section>
+
+    <section id="voice">
+      <h2>Kokoro server</h2>
+      <div class="card">
+        <div class="row"><label for="kokoro">Address<span class="hint">Turns reply text into speech</span></label>
+          <input type="text" id="kokoro" data-k="kokoro_url" spellcheck="false" placeholder="http://127.0.0.1:8880"></div>
+        <div class="row"><div class="lbl">Connection<span class="hint status" id="kstatus">Not tested yet</span></div><button class="btn primary" id="ktest">Test connection</button></div>
+      </div>
+      <h2>Speech</h2>
+      <div class="card">
+        <div class="row"><label for="voicesel">Voice<span class="hint">bf_ and bm_ are British English</span></label><select id="voicesel" data-k="voice"></select></div>
+        <div class="row"><div class="lbl">Speed</div>
+          <div class="ctl"><input type="range" min="0.7" max="1.5" step="0.05" data-k="speed"><span class="val" data-v="speed" data-unit="×"></span></div></div>
+        <div class="row"><label for="charlimit">Longest reply to read out<span class="hint" id="charhint"></span></label>
+          <div class="ctl"><input type="number" id="charlimit" class="num" min="0" step="50" data-k="speech_char_limit" style="width:96px;min-width:0"><span class="unit">characters</span></div></div>
+        <div class="row"><div class="lbl">Hear it</div><button class="btn" data-preview="speech">Play sample</button></div>
+      </div>
+    </section>
+
+    <section id="sound">
+      <h2>Output</h2>
+      <div class="card">
+        <div class="row"><label for="device">Output device</label><div class="ctl"><select id="device" data-k="output_device"></select><button class="btn" id="refresh" title="Look for devices again">↻</button></div></div>
+        <div class="row"><div class="lbl">Speech volume</div>
+          <div class="ctl"><input type="range" min="0" max="100" data-k="speech_volume"><span class="val" data-v="speech_volume" data-unit="%"></span></div></div>
+        <div class="row"><div class="lbl">Chime volume<span class="hint">Question, approval and on/off chimes</span></div>
+          <div class="ctl"><input type="range" min="0" max="100" data-k="chime_volume"><span class="val" data-v="chime_volume" data-unit="%"></span></div></div>
+        <div class="row"><div class="lbl">Test chimes</div>
+          <div class="kinds"><button class="btn" data-beep="question">Question</button><button class="btn" data-beep="approval">Approval</button><button class="btn" data-beep="on">On</button></div></div>
+      </div>
+      <h2>Bluetooth</h2>
+      <div class="card">
+        <div class="row"><div class="lbl">Wake-up silence<span class="hint">Silence before each clip so Bluetooth earbuds don't clip the first word</span></div>
+          <div class="ctl"><input type="range" min="0" max="1000" step="50" data-k="preroll_ms"><span class="val" data-v="preroll_ms" data-unit=" ms"></span></div></div>
+      </div>
+    </section>
+
+    <section id="pad">
+      <h2>Your pad</h2>
+      <div class="card">
+        <div class="pad-wrap"><svg class="pad-svg" id="padsvg" viewBox="0 0 560 230" aria-label="Macropad layout"></svg></div>
+        <div class="row"><div class="lbl" id="padstate">Looking for the pad<span class="hint" id="padhint"></span></div>
+          <button class="btn primary" id="padupload">Upload to pad</button></div>
+      </div>
+      <h2>What each control does</h2>
+      <div class="card" id="padrows"></div>
+      <h2>Layout</h2>
+      <div class="card">
+        <div class="row"><div class="lbl">Knob on the left<span class="hint">Turn this on if you keep the pad turned round, with the USB port facing you. Keys are still numbered left to right</span></div>
+          <label class="switch"><input type="checkbox" id="padrev"><span></span></label></div>
+        <div class="row" id="padlightsrow"><div class="lbl">Lights<span class="hint">The pad's built-in light effects. Changes straight away, no upload needed</span></div>
+          <select id="padlights" style="min-width:200px"></select></div>
+      </div>
+      <h2>Key symbols for 3D printing</h2>
+      <div class="card">
+        <div class="pad-wrap"><svg class="pad-svg" id="symsvg" viewBox="0 0 560 230" aria-label="Key symbols"></svg></div>
+        <div class="row"><div class="lbl">Click a key or the knob to choose its symbol<span class="hint">Any PNG or JPEG with dark or opaque artwork. Shown here exactly as it will print. Text symbols like Enter and Esc need about 12 mm to print cleanly</span></div>
+          <button class="btn" id="symmatch">Match to actions</button></div>
+        <div id="symrows"></div>
+        <div class="row"><div class="lbl">Size<span class="hint">Width of a square symbol, or diameter of a round one. Knob caps are always round</span></div>
+          <div class="ctl"><select id="symshape" style="min-width:120px"><option value="square">Square</option><option value="round">Round</option></select>
+          <input type="number" class="num" id="symsize" min="3" max="60" step="1" style="width:76px"><span class="unit">mm</span></div></div>
+        <div class="row"><div class="lbl">Thickness<span class="hint" id="symthick"></span></div>
+          <div class="ctl"><input type="number" class="num" id="symlayers" min="1" max="20" step="1" style="width:64px"><span class="unit">layers of</span>
+          <select id="symlh" style="min-width:96px"><option value="0.08">0.08</option><option value="0.12">0.12</option><option value="0.16">0.16</option><option value="0.2">0.2</option><option value="0.24">0.24</option><option value="0.28">0.28</option></select><span class="unit">mm</span></div></div>
+        <div class="row"><div class="lbl">Print them<span class="hint">One STL with every symbol in a row, 3 mm apart, flat on the bed</span></div>
+          <div class="ctl" style="flex-direction:row"><button class="btn" id="symfolder">Open icons folder</button><button class="btn primary" id="symexport">Export STL…</button></div></div>
+      </div>
+      <h2>Pad profile</h2>
+      <div class="card">
+        <div class="row"><div class="lbl">Profile<span class="hint" id="padprofhint"></span></div><span id="padprofname"></span></div>
+        <div class="row"><div class="lbl">Export<span class="hint">Saves this pad and its key map as an XML file you can share or keep</span></div>
+          <button class="btn" id="padexport">Export…</button></div>
+        <div class="row"><div class="lbl">Import<span class="hint">Loads a pad profile from an XML file and replaces the one above. The current one is saved first, dated, in the pad-profiles folder</span></div>
+          <button class="btn" id="padimport">Import…</button><input type="file" id="padfile" accept=".xml,application/xml,text/xml" style="display:none"></div>
+        <div class="row"><div class="lbl">Start again<span class="hint">Back to the built-in 3 keys + knob pad and the VoiceLoop key map. The current profile is saved first</span></div>
+          <button class="btn" id="padreset">Use the built-in pad</button></div>
+      </div>
+    </section>
+
+    <section id="about">
+      <h2>VoiceLoop</h2>
+      <div class="card">
+        <div class="row"><div class="lbl">Version</div><span id="ver"></span></div>
+        <div class="row"><div class="lbl">Installed in</div><code id="folder"></code></div>
+        <div class="row"><div class="lbl">How it works<span class="hint">A hook in Claude Code sends each reply here. Kokoro turns it into speech, and this app plays it and shows the pill.</span></div></div>
+        <div class="row"><div class="lbl">Source, help and updates</div><a class="ext" href="https://github.com/Tombo1001/voiceloop" target="_blank" rel="noopener">github.com/Tombo1001/voiceloop</a></div>
+      </div>
+      <h2>Pair the hook</h2>
+      <div class="card">
+        <div class="row"><div class="lbl">Address<span class="hint">Where the hook on the Claude Code machine sends replies. Pick the one that machine can reach</span></div>
+          <select id="pairurl"></select></div>
+        <div class="row"><div class="lbl">Token<span class="hint">The hook sends this with every reply. Anyone with it can make this PC speak, so keep it private</span></div>
+          <div class="ctl" style="flex-direction:row"><code id="pairtok">••••••••</code><button class="btn" id="pairshow">Show</button></div></div>
+        <div class="row"><div class="lbl">Setup command<span class="hint">Run it on the Claude Code machine, in the folder that holds voiceloop_hook.py. It adds the hooks to ~/.claude/settings.json and keeps a backup</span></div>
+          <button class="btn primary" id="paircopy">Copy command</button></div>
+      </div>
+    </section>
+  </main>
+</div>
+<footer><span><span class="dotst" id="fdot"></span><span id="ftext">Kokoro not tested</span></span><span id="fver"></span></footer>
+<div class="toast" id="toast">Saved</div>
+
+<script>
+const key = new URLSearchParams(location.search).get("k") || "";
+const api = (path, body) => fetch(path, {method: body === undefined ? "GET" : "POST",
+  headers: {"X-VL-Key": key, "Content-Type": "application/json"}, body: body === undefined ? undefined : JSON.stringify(body)})
+  .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+let S = {}, voices = [], pairing = {};
+
+function toast(t = "Saved") { const e = $("#toast"); e.textContent = t; e.classList.toggle("warn", /fail|couldn|not found/i.test(t)); e.classList.add("show"); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove("show"), 900); }
+
+function fill(state) {
+  S = state.settings;
+  $("#voice_on").checked = state.voice_on;
+  const mon = $("#monitor"); mon.innerHTML = "";
+  state.monitors.forEach(m => mon.add(new Option(`${m.name}${m.primary ? " (main)" : ""} · ${m.width}×${m.height} · ${Math.round(m.scale*100)}%`, m.device)));
+  if (!state.monitors.some(m => m.device === S.monitor)) mon.value = (state.monitors.find(m => m.primary) || {}).device || "";
+  const dev = $("#device"); dev.innerHTML = ""; dev.add(new Option("Windows default", ""));
+  state.devices.forEach(d => dev.add(new Option(d, d)));
+  if (S.output_device && !state.devices.includes(S.output_device)) dev.add(new Option(S.output_device + " (not connected)", S.output_device));
+  fillVoices();
+  $$("[data-k]").forEach(el => {
+    const v = S[el.dataset.k]; if (v === undefined) return;
+    if (el.type === "checkbox") el.checked = !!v; else if (el.id !== "monitor" || v) el.value = v;
+  });
+  $$("[data-v]").forEach(el => showVal(el.dataset.v));
+  $$("#anchors button").forEach(b => b.classList.toggle("on", b.dataset.a === S.anchor));
+  drawThreads(state.threads || []);
+  showCharHint();
+  pvName = ((state.threads || []).find(t => t.title) || {}).title || "Example thread";
+  $("#maxrow").style.display = S.fit_thread_name ? "none" : "";
+  $("#ver").textContent = state.version; $("#fver").textContent = "v" + state.version;
+  $("#folder").textContent = state.folder;
+  pairing = state.pairing || {};
+  const pu = $("#pairurl"), keep = pu.value;
+  pu.innerHTML = "";
+  (pairing.urls && pairing.urls.length ? pairing.urls : ["http://THIS-PC:8765"]).forEach(u => pu.add(new Option(u, u)));
+  if (keep && [...pu.options].some(o => o.value === keep)) pu.value = keep;
+  if ($("#pairshow").dataset.on) $("#pairtok").textContent = pairing.token || "";
+  drawPreview();
+  api("/api/pad").then(padApply).catch(() => {});
+}
+
+function ago(t) {
+  const s = (Date.now() - new Date(t)) / 1000;
+  if (s < 90) return "just now";
+  if (s < 3600) return Math.round(s / 60) + " min ago";
+  if (s < 86400) return Math.round(s / 3600) + " h ago";
+  return Math.round(s / 86400) + " days ago";
+}
+function drawThreads(list) {
+  const box = $("#threadlist"); box.innerHTML = "";
+  if (!list.length) { box.innerHTML = '<div class="empty">No threads heard yet. They appear here after their first reply.</div>'; return; }
+  list.forEach(t => {
+    const row = document.createElement("div"); row.className = "thread" + (t.muted ? " muted" : "");
+    const left = document.createElement("div"); left.style.minWidth = "0";
+    const name = document.createElement("div"); name.className = "name"; name.textContent = t.title || t.id.slice(0, 8);
+    const when = document.createElement("div"); when.className = "when"; when.textContent = (t.muted ? "Muted · " : "") + "last heard " + ago(t.last_heard);
+    left.append(name, when);
+    const sw = document.createElement("label"); sw.className = "switch"; sw.title = t.muted ? "Unmute" : "Mute";
+    sw.innerHTML = '<input type="checkbox"' + (t.muted ? "" : " checked") + '><span></span>';
+    sw.querySelector("input").addEventListener("change", e =>
+      api("/api/thread", {ID: t.id, Muted: !e.target.checked}).then(st => { drawThreads(st.threads); toast(e.target.checked ? "Unmuted" : "Muted"); }));
+    row.append(left, sw); box.appendChild(row);
+  });
+}
+setInterval(() => { if ($("#threadsec").classList.contains("on")) api("/api/state").then(st => drawThreads(st.threads || [])).catch(() => {}); }, 5000);
+
+function fillVoices() {
+  const sel = $("#voicesel"); sel.innerHTML = "";
+  const list = voices.length ? voices : [S.voice];
+  const brit = list.filter(v => /^b[fm]_/.test(v)), rest = list.filter(v => !/^b[fm]_/.test(v));
+  for (const [label, vs] of [["British English", brit], ["Other voices", rest]]) {
+    if (!vs.length) continue;
+    const g = document.createElement("optgroup"); g.label = label;
+    vs.forEach(v => g.appendChild(new Option(v, v))); sel.appendChild(g);
+  }
+  if (!list.includes(S.voice)) sel.add(new Option(S.voice, S.voice));
+  sel.value = S.voice;
+}
+
+function showTrimDays() {
+  const h = Number(S.thread_trim_hours || 24), el = $("#trimdays"); if (!el) return;
+  if (h <= 24) { el.textContent = ""; return; }
+  const d = h / 24;
+  el.textContent = "≈ " + (Number.isInteger(d) ? d : d.toFixed(1)) + " days";
+}
+function showCharHint() {
+  const n = Number(S.speech_char_limit), el = $("#charhint"); if (!el) return;
+  el.textContent = n === 0 ? "0 means no limit: whole replies are read out"
+    : `About ${Math.max(1, Math.round(n / 15))} seconds of speech, cut at a full stop. 0 means no limit`;
+}
+function showVal(k) {
+  if (k === "thread_trim_hours") showTrimDays();
+  if (k === "speech_char_limit") showCharHint();
+  const el = $(`[data-v="${k}"]`); if (!el) return;
+  let v = S[k]; if (k === "speed") v = Number(v).toFixed(2);
+  el.textContent = v + (el.dataset.unit || "");
+}
+
+let pending = {}, timer;
+function save(patch, now) {
+  Object.assign(pending, patch); Object.assign(S, patch);
+  clearTimeout(timer);
+  timer = setTimeout(() => {
+    const p = pending; pending = {};
+    api("/api/settings", p).then(st => { S = st.settings; drawThreads(st.threads || []); toast(); }).catch(() => toast("Couldn't save"));
+  }, now ? 0 : 250);
+}
+
+$$("[data-k]").forEach(el => {
+  const k = el.dataset.k;
+  const ev = (el.type === "range" || el.type === "color") ? "input" : "change";
+  el.addEventListener(ev, () => {
+    let v = el.type === "checkbox" ? el.checked : el.value;
+    if (el.type === "range") v = Number(v);
+    if (el.type === "number") { v = Math.max(0, Math.round(Number(v) || 0)); showVal(k); }
+    save({[k]: v}, el.tagName === "SELECT" || el.type === "checkbox");
+    if (k === "fit_thread_name") $("#maxrow").style.display = v ? "none" : "";
+    if (k === "show_thread_name" || k === "fit_thread_name" || k === "max_title") drawPreview();
+    showVal(k); drawPreview();
+  });
+});
+$("#kokoro").addEventListener("input", () => {}); // saved on change only, so half-typed addresses aren't used
+
+$$("#anchors button").forEach(b => b.addEventListener("click", () => {
+  $$("#anchors button").forEach(x => x.classList.toggle("on", x === b));
+  save({anchor: b.dataset.a}, true);
+}));
+$$("nav button").forEach(b => b.addEventListener("click", () => {
+  $$("nav button").forEach(x => x.classList.toggle("on", x === b));
+  $$("section").forEach(s => s.classList.toggle("on", s.id === b.dataset.tab));
+}));
+$("#voice_on").addEventListener("change", e => api("/api/voice", {On: e.target.checked}).then(() => toast(e.target.checked ? "Voice mode on" : "Voice mode off")));
+$("#stop").addEventListener("click", () => api("/api/stop", {}));
+$$("[data-preview]").forEach(b => b.addEventListener("click", () => api("/api/preview", {Kind: b.dataset.preview})));
+$$("[data-beep]").forEach(b => b.addEventListener("click", () => api("/api/beep", {Kind: b.dataset.beep})));
+$("#refresh").addEventListener("click", () => api("/api/state").then(fill).then(() => toast("Devices refreshed")));
+$("#resetcol").addEventListener("click", () => {
+  save({speech_colour: "#4fd1c5", question_colour: "#f6b24e", approval_colour: "#ff6b6b", pill_colour: "#2a2a2c", pill_opacity: 95}, true);
+  setTimeout(() => api("/api/state").then(fill), 300);
+});
+
+function setStatus(ok, text) {
+  const s = $("#kstatus"); s.textContent = text; s.className = "hint status " + (ok ? "ok" : "bad");
+  $("#fdot").className = "dotst " + (ok ? "ok" : "bad");
+  $("#ftext").textContent = ok ? `Kokoro connected · ${S.voice}` : "Kokoro not reachable";
+}
+function testKokoro() {
+  const url = $("#kokoro").value.trim();
+  $("#kstatus").textContent = "Testing…"; $("#kstatus").className = "hint status";
+  return api("/api/test-kokoro", {URL: url}).then(r => {
+    if (r.ok) { voices = r.voices || []; fillVoices(); setStatus(true, `Connected in ${r.ms} ms · ${voices.length} voices`); }
+    else setStatus(false, r.error);
+  });
+}
+$("#ktest").addEventListener("click", testKokoro);
+
+// Live preview: a CSS copy of the pill in the chosen colours, bars moving like speech.
+let pvKind = "speech", pvName = "Example thread", pvShape = "";
+function buildPreview() {
+  const two = S.show_thread_name !== false, shape = two ? "two" : "one";
+  const pv = $("#pv");
+  if (shape !== pvShape) {
+    pv.className = "pill" + (two ? " two" : "");
+    pv.innerHTML = two
+      ? '<div class="r1"><div class="dot"></div><div class="name"></div><div class="chip">Mute thread</div><div class="x">✕</div></div><div class="bars"></div>'
+      : '<div class="dot"></div><div class="bars"></div><div class="x">✕</div>';
+    const bars = pv.querySelector(".bars");
+    for (let i = 0; i < 9; i++) bars.appendChild(document.createElement("i"));
+    pvShape = shape;
+  }
+  const name = pv.querySelector(".name");
+  if (name) {
+    name.textContent = pvName;
+    name.style.maxWidth = S.fit_thread_name ? "none" : (S.max_title || 260) + "px";
+  }
+}
+function drawPreview() {
+  buildPreview();
+  const pv = $("#pv"), op = (S.pill_opacity ?? 95) / 100, bg = S.pill_colour || "#2a2a2c";
+  const r = parseInt(bg.slice(1, 3), 16), g = parseInt(bg.slice(3, 5), 16), b = parseInt(bg.slice(5, 7), 16);
+  pv.style.background = `rgba(${r},${g},${b},${op})`;
+  pv.style.transform = `scale(${(S.pill_size || 100) / 100})`;
+  const c = {speech: S.speech_colour, question: S.question_colour, approval: S.approval_colour}[pvKind];
+  pv.querySelector(".dot").style.background = c;
+  [...pv.querySelector(".bars").children].forEach(i => i.style.background = c);
+}
+let t0 = performance.now();
+(function animate(now) {
+  const bars = $("#pv .bars"); if (bars && bars.children.length) {
+    const t = (now - t0) / 1000;
+    [...bars.children].forEach((el, i) => {
+      const d = Math.abs(i - 4), lv = Math.max(0, Math.sin(t * 5.3 - d * .6) * .5 + Math.sin(t * 8.1 + i) * .3 + .25) * (1 - .13 * d);
+      el.style.height = (4.5 + lv * 29.5) + "px";
+    });
+  }
+  requestAnimationFrame(animate);
+})(t0);
+setInterval(() => { pvKind = {speech: "question", question: "approval", approval: "speech"}[pvKind]; drawPreview(); }, 2500);
+
+// Close this window when VoiceLoop quits or restarts (the event stream drops).
+function goneAway() {
+  window.close(); // allowed: this app window was opened with a single page
+  document.body.innerHTML = "<p style='padding:30px;color:#a0a0a6'>VoiceLoop has closed or restarted. Open Settings again from the tray icon or the Start menu.</p>";
+}
+function watchVoiceLoop() {
+  const es = new EventSource("/api/events?k=" + encodeURIComponent(key));
+  es.onerror = () => {
+    es.close();
+    // Gone (no answer) or restarted (our key no longer works): close. Still the same
+    // VoiceLoop: the stream just dropped, so reconnect in a moment.
+    fetch("/api/state", {headers: {"X-VL-Key": key}})
+      .then(r => { if (r.ok) setTimeout(watchVoiceLoop, 3000); else goneAway(); })
+      .catch(goneAway);
+  };
+}
+if (key) watchVoiceLoop();
+
+
+
+// ---------- macropad ----------
+// Everything about the pad comes from its profile (GET /api/pad): keys, knobs,
+// light modes and the key map. Actions here are VoiceLoop's, the same for any pad.
+// [value, menu label, short label on the drawing, detail]
+const PAD_ACTIONS = [
+  ["ctrl-space", "Dictate: start / stop", "Dictate", "Handy, Ctrl+Space"],
+  ["ctrl-space,slash", "Dictate a / command", "/ command", "starts Handy, types / (say \"repeat\" for /repeat)"],
+  ["enter", "Send", "Send", "Enter"],
+  ["ctrl-alt-x", "Stop speech", "Stop speech", "VoiceLoop, Ctrl+Alt+X"],
+  ["ctrl-alt-v", "Voice mode on / off", "Voice mode", "VoiceLoop, Ctrl+Alt+V"],
+  ["volumeup", "Volume up", "Vol +", ""],
+  ["volumedown", "Volume down", "Vol −", ""],
+  ["mute", "Mute", "Mute", ""],
+  ["play", "Play / pause media", "Play", ""],
+  ["escape", "Esc", "Esc", "careful: Esc can stop Claude mid-reply"],
+  ["", "Nothing", "—", ""],
+];
+let PAD = null, padDirty = false, padFound = false;
+const padShort = v => { const a = PAD_ACTIONS.find(x => x[0] === v); return a ? a[2] : v; };
+const htmlEsc = t => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+const padAction = c => (PAD.mapping.bind.find(b => b.control === c) || {action: ""}).action;
+
+// Every bindable control, in the profile's order, with a name for people.
+function padControls() {
+  const out = [], keys = PAD.keys.list, knobs = PAD.knobs || [];
+  keys.forEach((k, i) => out.push({id: k.id, name: k.label || `Key ${i + 1}`}));
+  knobs.forEach((k, i) => {
+    const n = k.label || (knobs.length > 1 ? `Knob ${i + 1}` : "Knob");
+    out.push({id: k.id + ".press", name: n + " press"},
+             {id: k.id + ".left", name: n + " turn left", hint: "anticlockwise"},
+             {id: k.id + ".right", name: n + " turn right", hint: "clockwise"});
+  });
+  return out;
+}
+
+function drawPad(sel = "#padsvg", mode = "actions") {
+  const sym = mode === "symbols";
+  const rows = PAD.keys.rows, cols = PAD.keys.columns, knobs = PAD.knobs || [];
+  const left = PAD.mapping.knob_side === "left";
+  const ks = Math.min(100, Math.floor(300 / Math.max(rows, 1.6)));      // key size
+  const gap = Math.round(ks * 0.15), kr = Math.min(50, Math.floor(150 / Math.max(knobs.length, 1)) - 6);
+  const gridW = cols * ks + (cols - 1) * gap, gridH = rows * ks + (rows - 1) * gap;
+  const knobW = knobs.length ? kr * 2 + 40 : 0;
+  const bodyW = gridW + knobW + 60, bodyH = Math.max(gridH, knobs.length ? knobs.length * (kr * 2 + 14) : 0) + 50;
+  const W = Math.max(bodyW + 20, 300), H = bodyH + (!sym && knobs.length === 1 ? 70 : 40); // room for the turn labels
+  const bx = (W - bodyW) / 2, by = 20;
+  const gx = left ? bx + 30 + knobW : bx + 30, gy = by + (bodyH - gridH) / 2;
+  const kx = left ? bx + 30 + kr : bx + 30 + gridW + 40 + kr;
+  const stamp = padStamp;
+  const img = (c, x, y, w, round) => {
+    const icon = symIcon(c);
+    if (!icon) return `<text class="sub" x="${x + w / 2}" y="${y + w / 2 + 4}" text-anchor="middle">+ symbol</text>`;
+    const u = `/api/pad/symbol.png?control=${encodeURIComponent(c)}&k=${encodeURIComponent(key)}&t=${stamp}`;
+    return `<image href="${u}" x="${x}" y="${y}" width="${w}" height="${w}" style="image-rendering:pixelated"/>`;
+  };
+  let g = `<rect x="${bx}" y="${by}" width="${bodyW}" height="${bodyH}" rx="26" fill="#323236" stroke="#47474c" stroke-width="2"/>`;
+  knobs.forEach((k, i) => {
+    const cy = by + (bodyH - knobs.length * (kr * 2 + 14) + 14) / 2 + kr + i * (kr * 2 + 14);
+    const c = sym ? k.id : k.id + ".press";
+    g += `<g class="ctl" data-c="${c}"><circle class="face" cx="${kx}" cy="${cy}" r="${kr}" fill="#18181a" stroke="#5a5a60" stroke-width="2"/>
+          <circle cx="${kx}" cy="${cy}" r="${kr * 0.76}" fill="#222225" stroke="#3a3a3e"/>`;
+    if (sym) g += img(k.id, kx - kr * 0.62, cy - kr * 0.62, kr * 1.24, true) + `</g>`;
+    else g += `<text class="sub" x="${kx}" y="${cy - 12}" text-anchor="middle">press</text>
+          <text class="act" x="${kx}" y="${cy + 8}" text-anchor="middle">${htmlEsc(padShort(padAction(k.id + ".press")))}</text></g>`;
+    if (!sym && knobs.length === 1) {
+      g += `<g class="ctl" data-c="${k.id}.left"><text class="act" x="${kx - 10}" y="${by + bodyH + 32}" text-anchor="end">↺ ${htmlEsc(padShort(padAction(k.id + ".left")))}</text></g>`;
+      g += `<g class="ctl" data-c="${k.id}.right"><text class="act" x="${kx + 10}" y="${by + bodyH + 32}">${htmlEsc(padShort(padAction(k.id + ".right")))} ↻</text></g>`;
+    }
+  });
+  PAD.keys.list.forEach((k, i) => {
+    const r = Math.floor(i / cols), c = i % cols, x = gx + c * (ks + gap), y = gy + r * (ks + gap);
+    g += `<g class="ctl" data-c="${k.id}"><rect class="face" x="${x}" y="${y}" width="${ks}" height="${ks}" rx="14" fill="#141416" stroke="#3d3d42" stroke-width="2"/>
+          <text class="num" x="${x + 12}" y="${y + 21}">${i + 1}</text>`;
+    g += sym ? img(k.id, x + ks * 0.18, y + ks * 0.18, ks * 0.64, false) + `</g>`
+             : `<text class="act" x="${x + ks / 2}" y="${y + ks / 2 + 5}" text-anchor="middle">${htmlEsc(padShort(padAction(k.id)))}</text></g>`;
+  });
+  const svg = $(sel);
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.innerHTML = g;
+  svg.querySelectorAll(".ctl").forEach(el => {
+    el.addEventListener("mouseenter", () => padHL(el.dataset.c, true));
+    el.addEventListener("mouseleave", () => padHL(el.dataset.c, false));
+    el.addEventListener("click", () => {
+      if (sym) { symChoose(el.dataset.c); return; }
+      const s2 = document.querySelector(`#padrows [data-c="${el.dataset.c}"] select`); if (s2) s2.focus();
+    });
+  });
+}
+
+// ---------- key symbols ----------
+let padStamp = Date.now();
+const symIcon = c => ((PAD.symbols && PAD.symbols.list) || []).find(x => x.control === c)?.icon || "";
+function symControls() {
+  const out = PAD.keys.list.map((k, i) => ({id: k.id, name: k.label || `Key ${i + 1}`}));
+  (PAD.knobs || []).forEach((k, i) => out.push({id: k.id, name: (k.label || (PAD.knobs.length > 1 ? `Knob ${i + 1}` : "Knob")) + " cap"}));
+  return out;
+}
+function drawSymbols() {
+  const sy = PAD.symbols || {shape: "square", size: 9, layers: 2, layer_height: 0.2, list: []};
+  drawPad("#symsvg", "symbols");
+  $("#symrows").innerHTML = symControls().map(c => {
+    const ic = symIcon(c.id);
+    return `<div class="row pad-row" data-c="${htmlEsc(c.id)}"><div class="lbl">${htmlEsc(c.name)}<span class="hint">${ic ? htmlEsc(ic) : "no symbol"}</span></div>
+      <div class="ctl" style="flex-direction:row"><button class="btn" data-sym="choose">Choose…</button>${ic ? `<button class="btn" data-sym="clear">Clear</button>` : ""}</div></div>`;
+  }).join("");
+  $$("#symrows .pad-row").forEach(row => {
+    const id = row.dataset.c;
+    row.addEventListener("mouseenter", () => padHL(id, true));
+    row.addEventListener("mouseleave", () => padHL(id, false));
+    row.querySelector('[data-sym="choose"]').addEventListener("click", () => symChoose(id));
+    const cl = row.querySelector('[data-sym="clear"]');
+    if (cl) cl.addEventListener("click", () => api("/api/pad/symbol/clear", {Control: id}).then(symApplied));
+  });
+  $("#symshape").value = sy.shape; $("#symsize").value = sy.size; $("#symlayers").value = sy.layers;
+  $("#symlh").value = String(sy.layer_height);
+  $("#symthick").textContent = `${(sy.layers * sy.layer_height).toFixed(2)} mm thick, flat on the bed`;
+}
+function symApplied(r) {
+  if (!r) return;
+  if (r.cancelled) return;
+  if (r.ok === false) { toast("Couldn't use that image"); alert(r.error); return; }
+  padStamp = Date.now(); padApply(r); toast();
+}
+function symChoose(c) { api("/api/pad/symbol/choose", {Control: c}).then(symApplied).catch(() => toast("Couldn't open the picker")); }
+function symSettings() {
+  api("/api/pad/symbols/settings", {Shape: $("#symshape").value, Size: Number($("#symsize").value) || 9,
+    Layers: Math.round(Number($("#symlayers").value) || 2), LayerHeight: Number($("#symlh").value)}).then(symApplied);
+}
+["#symshape", "#symsize", "#symlayers", "#symlh"].forEach(s3 => $(s3).addEventListener("change", symSettings));
+$("#symmatch").addEventListener("click", () => api("/api/pad/symbols/match", {}).then(r => { symApplied(r); toast(`Matched ${r.matched}`); }));
+$("#symfolder").addEventListener("click", () => api("/api/pad/symbols/folder", {}));
+$("#symexport").addEventListener("click", () => {
+  const b = $("#symexport"); b.textContent = "Choose where…";
+  api("/api/pad/symbols/export", {}).then(r => {
+    b.textContent = "Export STL…";
+    if (r.cancelled) return;
+    if (!r.ok) { toast("Export failed"); alert(r.error); return; }
+    afterExport([r.stl]);
+  }).catch(() => { b.textContent = "Export STL…"; toast("Export failed"); });
+});
+
+function padHL(c, on) { $$(`[data-c="${c}"]`).forEach(e => e.classList.toggle("hl", on)); }
+
+function drawPadRows() {
+  $("#padrows").innerHTML = padControls().map(c => {
+    const v = padAction(c.id), known = PAD_ACTIONS.some(a => a[0] === v);
+    const opts = PAD_ACTIONS.map(a => `<option value="${htmlEsc(a[0])}"${known && a[0] === v ? " selected" : ""}>${htmlEsc(a[1])}${a[3] ? " · " + htmlEsc(a[3]) : ""}</option>`).join("")
+      + `<option value="__custom"${known ? "" : " selected"}>Custom keys…</option>`;
+    return `<div class="row pad-row" data-c="${htmlEsc(c.id)}"><div class="lbl">${htmlEsc(c.name)}${c.hint ? `<span class="hint">${c.hint}</span>` : ""}</div>
+      <div class="ctl"><select>${opts}</select>
+      <input type="text" placeholder="e.g. ctrl-shift-m or f13" value="${known ? "" : htmlEsc(v)}" style="${known ? "display:none" : ""}">
+      <span class="pad-err"></span></div></div>`;
+  }).join("");
+  $$("#padrows .pad-row").forEach(row => {
+    const id = row.dataset.c, sel = row.querySelector("select"), txt = row.querySelector("input"), err = row.querySelector(".pad-err");
+    row.addEventListener("mouseenter", () => padHL(id, true));
+    row.addEventListener("mouseleave", () => padHL(id, false));
+    const bind = v => api("/api/pad/bind", {Control: id, Action: v}).then(r => {
+      err.textContent = r.ok ? "" : r.error;
+      if (r.ok) { padApply(r); padDirty = true; padStatusText(); toast(); }
+    });
+    sel.addEventListener("change", () => {
+      if (sel.value === "__custom") { txt.style.display = ""; txt.focus(); return; }
+      txt.style.display = "none"; bind(sel.value);
+    });
+    txt.addEventListener("change", () => bind(txt.value.trim().toLowerCase()));
+  });
+}
+
+// padApply takes a /api/pad response and redraws everything.
+function padApply(r) {
+  if (!r || !r.profile) return;
+  padStamp = Date.now();
+  PAD = r.profile;
+  PAD.knobs = PAD.knobs || []; PAD.lights = PAD.lights || []; PAD.mapping.bind = PAD.mapping.bind || [];
+  if (r.status) padFound = r.status.found;
+  $("#padrev").checked = PAD.mapping.knob_side === "left";
+  $("#padrev").closest(".row").style.display = PAD.knobs.length ? "" : "none";
+  const ls = $("#padlights");
+  ls.innerHTML = PAD.lights.map(l => `<option value="${l.value}">${htmlEsc(l.name)}</option>`).join("");
+  ls.value = String(PAD.mapping.lights);
+  $("#padlightsrow").style.display = PAD.lights.length ? "" : "none";
+  $("#padprofname").textContent = PAD.name;
+  $("#padprofhint").textContent = `USB ${PAD.usb.vendor_id.replace(/^0x/, "")}:${PAD.usb.product_id.replace(/^0x/, "")}, ${PAD.keys.list.length} keys, ${PAD.knobs.length} knob${PAD.knobs.length === 1 ? "" : "s"}, protocol ${PAD.protocol}`;
+  drawPad(); drawPadRows(); drawSymbols(); padStatusText();
+}
+
+function padStatusText() {
+  $("#padstate").firstChild.textContent = padFound ? "Pad connected" : "No pad found";
+  $("#padstate").classList.toggle("pad-dirty", padFound && padDirty);
+  $("#padhint").textContent = !padFound ? "Plug it in by USB. No driver or install needed."
+    : padDirty ? "Changes aren't on the pad yet. Press Upload."
+    : "The layout is stored on the pad itself, so it keeps working even when VoiceLoop isn't running.";
+  $("#padupload").disabled = !padFound;
+  $("#padupload").style.opacity = padFound ? 1 : 0.5;
+}
+
+function padPoll() { return api("/api/pad").then(r => { padFound = r.status.found; padStatusText(); }).catch(() => {}); }
+
+$("#padupload").addEventListener("click", () => {
+  const b = $("#padupload"); b.textContent = "Uploading…";
+  api("/api/pad/upload", {}).then(r => {
+    b.textContent = "Upload to pad";
+    if (r.ok) { padDirty = false; padStatusText(); toast("On the pad"); }
+    else { $("#padhint").textContent = r.error; toast("Upload failed"); }
+  }).catch(() => { b.textContent = "Upload to pad"; toast("Upload failed"); });
+});
+$("#padlights").addEventListener("change", e => api("/api/pad/lights", {Mode: Number(e.target.value)}).then(r => {
+  padApply(r); toast(r.ok ? "Lights changed" : (r.error || "Pad not found"));
+}));
+$("#padrev").addEventListener("change", e => api("/api/pad/layout", {KnobSide: e.target.checked ? "left" : "right"}).then(r => {
+  padApply(r); padDirty = true; padStatusText(); toast();
+}));
+$("#padexport").addEventListener("click", () => {
+  const b = $("#padexport"); b.textContent = "Choose where\u2026";
+  api("/api/pad/export", {}).then(r => {
+    b.textContent = "Export\u2026";
+    if (r.cancelled) return;
+    if (!r.ok) { alert("Export failed:\n\n" + r.error); return; }
+    afterExport([r.pad]);
+  }).catch(() => { b.textContent = "Export\u2026"; toast("Export failed"); });
+});
+$("#padimport").addEventListener("click", () => $("#padfile").click());
+$("#padfile").addEventListener("change", e => {
+  const f = e.target.files[0]; e.target.value = "";
+  if (!f) return;
+  f.text().then(xml => fetch("/api/pad/import", {method: "POST", headers: {"X-VL-Key": key, "Content-Type": "application/xml"}, body: xml}))
+    .then(r => r.json()).then(r => {
+      if (!r.ok) { alert("That file wasn't imported:\n\n" + r.error); return; }
+      padApply(r); padDirty = true; padStatusText();
+      alert(`Imported "${r.profile.name}".\n\nThe previous profile was saved as pad-profiles\\${r.backup || "(nothing to save)"} in the VoiceLoop folder.\n\nPress Upload to put the new key map on the pad.`);
+    }).catch(() => toast("Import failed"));
+});
+$("#padreset").addEventListener("click", () => {
+  if (!confirm("Go back to the built-in pad and key map? The current profile is saved in the pad-profiles folder first.")) return;
+  api("/api/pad/reset", {}).then(r => {
+    if (!r.ok) { alert(r.error); return; }
+    padApply(r); padDirty = true; padStatusText();
+    toast("Built-in pad loaded");
+  });
+});
+setInterval(() => { if ($("#pad").classList.contains("on")) padPoll(); }, 3000);
+
+// afterExport says where the files went and offers to show them in Explorer.
+function afterExport(paths) {
+  if (confirm("Saved:\n\n" + paths.join("\n") + "\n\nOpen the folder?"))
+    api("/api/reveal", {Path: paths[0]}).catch(() => {});
+}
+
+// ---------- settings export / import ----------
+$("#setexport").addEventListener("click", () => {
+  const b = $("#setexport"); b.textContent = "Choose where\u2026";
+  api("/api/settings/export", {}).then(r => {
+    b.textContent = "Export\u2026";
+    if (r.cancelled) return;
+    if (!r.ok) { alert("Export failed:\n\n" + r.error); return; }
+    afterExport([r.settings, r.pad]);
+  }).catch(() => { b.textContent = "Export\u2026"; toast("Export failed"); });
+});
+$("#setimport").addEventListener("click", () => $("#setfile").click());
+$("#setfile").addEventListener("change", e => {
+  const f = e.target.files[0]; e.target.value = "";
+  if (!f) return;
+  if (!confirm(`Replace all VoiceLoop settings with the ones in ${f.name}?\n\nThe current settings are saved first, in the settings-backups folder.`)) return;
+  f.text().then(text => fetch("/api/settings/import", {method: "POST", headers: {"X-VL-Key": key, "Content-Type": "application/json"}, body: text}))
+    .then(r => r.json()).then(r => {
+      if (!r.ok) { alert("That file wasn't imported:\n\n" + r.error); return; }
+      api("/api/state").then(fill).then(testKokoro);
+      alert("Settings imported.\n\nThe previous settings were saved as settings-backups\\" + r.backup + " in the VoiceLoop folder.");
+    }).catch(() => toast("Import failed"));
+});
+
+api("/api/state").then(fill).then(testKokoro).catch(() => document.body.innerHTML =
+  "<p style='padding:30px'>This page has to be opened from the VoiceLoop tray icon (Settings…).</p>");
+
+$("#pairshow").addEventListener("click", e => {
+  const on = !e.target.dataset.on;
+  if (on) e.target.dataset.on = "1"; else delete e.target.dataset.on;
+  $("#pairtok").textContent = on ? (pairing.token || "") : "••••••••";
+  e.target.textContent = on ? "Hide" : "Show";
+});
+$("#paircopy").addEventListener("click", () => {
+  const cmd = `python3 voiceloop_hook.py setup --url ${$("#pairurl").value} --token ${pairing.token || ""}`;
+  navigator.clipboard.writeText(cmd).then(() => toast("Copied")).catch(() => toast("Couldn't copy"));
+});
+</script>
+</body>
+</html>

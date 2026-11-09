@@ -1,0 +1,71 @@
+name: Release
+
+# Push a tag such as v0.8.0 to build voiceloop.exe and attach it to a draft release.
+# The tag has to match the version in listener/version.go.
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: listener/go.mod
+          cache-dependency-path: listener/go.sum
+
+      - name: Check the tag matches version.go
+        run: |
+          v=$(sed -n 's/^const version = "\(.*\)"$/\1/p' listener/version.go)
+          [ "v$v" = "$GITHUB_REF_NAME" ] || { echo "Tag $GITHUB_REF_NAME doesn't match version.go ($v)"; exit 1; }
+          echo "VERSION=$v" >> "$GITHUB_ENV"
+
+      - name: Test
+        working-directory: listener
+        run: go test ./...
+
+      - name: Build
+        working-directory: listener
+        run: |
+          go run ./tools/mkrsrc
+          GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -trimpath -ldflags "-s -w -H windowsgui" -o voiceloop.exe .
+
+      - name: Package
+        run: |
+          name="voiceloop-$VERSION-windows"
+          mkdir -p "out/$name"
+          cp listener/voiceloop.exe scripts/install.ps1 LICENSE THIRD-PARTY-NOTICES.md README.md "out/$name/"
+          (cd out && zip -qr "$name.zip" "$name")
+          cp listener/voiceloop.exe out/voiceloop.exe
+          cp hooks/voiceloop_hook.py out/voiceloop_hook.py
+          (cd out && sha256sum "$name.zip" voiceloop.exe voiceloop_hook.py > SHA256SUMS.txt && cat SHA256SUMS.txt)
+
+      - name: Release notes from CHANGELOG.md
+        run: |
+          awk -v v="$VERSION" '
+            $0 ~ "^## " v "( |$)" { on = 1; next }
+            on && /^## / { exit }
+            on { print }
+          ' CHANGELOG.md > out/notes.md
+          {
+            echo
+            echo "### Checksums (SHA256)"
+            echo
+            echo '```'
+            cat out/SHA256SUMS.txt
+            echo '```'
+          } >> out/notes.md
+          cat out/notes.md
+
+      - name: Create a draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" --draft --title "VoiceLoop $VERSION" --notes-file out/notes.md \
+            "out/voiceloop-$VERSION-windows.zip" out/voiceloop.exe out/voiceloop_hook.py out/SHA256SUMS.txt

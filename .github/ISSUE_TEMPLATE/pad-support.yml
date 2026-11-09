@@ -1,0 +1,38 @@
+name: My macropad isn't supported
+description: Ask for VoiceLoop to support another macropad
+labels: [macropad]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping VoiceLoop support more pads. To find the USB IDs, open Device Manager, find the pad under "Human Interface Devices" or "Keyboards", open Properties, Details, and choose "Hardware Ids". They look like `VID_1189&PID_8890`.
+  - type: input
+    id: usb
+    attributes:
+      label: USB vendor and product ID
+      placeholder: VID_1189&PID_8890
+    validations:
+      required: true
+  - type: input
+    id: listing
+    attributes:
+      label: Where you bought it
+      description: A link to the listing, or the brand and model name.
+  - type: textarea
+    id: layout
+    attributes:
+      label: Keys and knobs
+      description: How many keys, in how many rows, and how many knobs.
+    validations:
+      required: true
+  - type: textarea
+    id: profile
+    attributes:
+      label: pad-profile.xml
+      description: If you made a profile for it, paste it here or attach it.
+      render: xml
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else
+      description: What happened when you pressed Upload to pad, and the end of voiceloop.log if it says anything.

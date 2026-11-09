@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  listener:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: listener
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: listener/go.mod
+          cache-dependency-path: listener/go.sum
+      - run: go vet ./...
+      - run: go test ./...
+      - name: Build the Windows exe
+        run: |
+          go run ./tools/mkrsrc
+          GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -trimpath -ldflags "-s -w -H windowsgui" -o voiceloop.exe .
+
+  hook:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m unittest discover hooks
