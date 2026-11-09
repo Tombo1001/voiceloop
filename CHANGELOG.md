@@ -2,7 +2,7 @@
 
 VoiceLoop's version is in `listener/version.go`. Each release is tagged `v<version>`.
 
-## 0.8.0 (unreleased)
+## 0.8.0 (2026-11-09)
 
 The first public release.
 
