@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  VoiceLoop pad profile: the 3-key + knob CH57x macropad (USB 1189:8890).
+  voiceloop pad profile: the 3-key + knob CH57x macropad (USB 1189:8890).
   Sold under many brand names. The protocol is ported from ch57x-keyboard-tool
   (kriomant, MIT/Apache-2.0). Schema: pad-profile.xsd.
 -->
@@ -8,7 +8,7 @@
   <name>3 keys + knob (CH57x)</name>
   <description>Three mechanical keys and a push knob, USB-C. Keys and knob are programmed over the pad's vendor HID interface, no driver needed.</description>
 
-  <!-- How VoiceLoop finds the pad's programming interface. -->
+  <!-- How voiceloop finds the pad's programming interface. -->
   <usb vendorId="0x1189" productId="0x8890" usagePage="0xFF00" reportLength="65"/>
 
   <!-- Which built-in encoder turns key maps into USB messages. -->
@@ -50,7 +50,7 @@
 
   <!-- Symbols to 3D print and glue on: an icon per key (and knob cap), fitted
        to a square or round size in mm, printed this many layers thick. Icons
-       are file names in VoiceLoop's icons folder. -->
+       are file names in voiceloop's icons folder. -->
   <symbols shape="square" size="9" layers="2" layerHeight="0.2">
     <symbol control="key1" icon="dictate.png"/>
     <symbol control="key2" icon="slash-command.png"/>

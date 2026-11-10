@@ -52,7 +52,7 @@ Already run another speech server with an OpenAI-style `/v1/audio/speech` endpoi
 2. Right-click `install.ps1`, choose **Run with PowerShell**, and allow it. To let only your Claude Code machine through the firewall, run it from an administrator PowerShell instead: `powershell -ExecutionPolicy Bypass -File install.ps1 -HookFrom 192.168.1.20`.
 3. Settings opens. Under **Voice**, enter Kokoro's address (`http://127.0.0.1:8880` if it runs on this PC), press **Test connection**, and pick a voice.
 
-   ![The Voice tab in voiceloop's Settings: the Kokoro server address, a successful connection test showing 72 voices, the voice picker set to bf_isabella, speed 1.10x and a Play sample button](docs/settings-voice.png)
+   ![The Voice tab in voiceloop's Settings: the speech server's address, the model set to kokoro, an empty API key box, a successful connection test showing 72 voices, the voice picker set to bf_isabella, speed 1.10x and a Play sample button](docs/settings-voice.png)
 
 The exe isn't code-signed, so Windows SmartScreen may say it "protected your PC". Choose **More info**, then **Run anyway**. Each release lists the exe's SHA256 so you can check the download first.
 
@@ -84,6 +84,8 @@ On the machine that runs Claude Code:
 
   Dictating "slash mute" works too.
 - **The pill.** It shows while **voiceloop** speaks. Its bars follow the speech, and the ✕ stops playback. Settings, **Pill** sets its monitor, corner, size and colours.
+
+  ![Four pills: a reply in teal with a long thread name cut short, a question in amber, a permission prompt in coral, and a muted thread](docs/pill.png)
 - **Length.** **voiceloop** reads up to 600 characters of a reply by default, about 40 seconds, and stops at a full stop. Change it in Settings, **Voice**.
 - **Settings backup.** Settings, **General** exports every setting and the mute list to a file and imports them again. The token is never included.
 
@@ -104,6 +106,8 @@ On the machine that runs Claude Code:
 **[Get the pad on Amazon UK](https://link.amazon/B0bSXFqie)**. As an Amazon Associate I earn from qualifying purchases. The same pad sells under many brand names, so if that listing is gone, search for a "3 key macropad with knob" and check that its USB ID is `1189:8890` once it's plugged in.
 
 Settings, **Macropad** shows a drawing of the pad. Pick an action for each key and the knob, then press **Upload to pad**. The key map lives on the pad itself, so it works on any PC afterwards. **voiceloop** writes to the pad through Windows' own HID driver: no driver to install and no admin rights.
+
+![The Macropad tab in voiceloop's Settings: a drawing of the 3-key pad with a knob, labelled Dictate, / command, Send and Stop speech, and a menu for each control](docs/settings-macropad.png)
 
 **Key symbols.** The same tab makes flat symbols to print and glue onto the keys. Pick an icon for each key (starter icons are included), then **Export STL…**. They printed cleanly at 9 mm with two 0.2 mm layers of PLA.
 
