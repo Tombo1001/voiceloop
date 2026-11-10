@@ -14,3 +14,10 @@ listener/rsrc_windows_amd64.syso
 .impeccable/refs/
 .impeccable/review/
 .impeccable/build/
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
