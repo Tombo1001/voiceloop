@@ -17,6 +17,8 @@ colors:
   on-ink-soft: "#c9cdd1"
   code-on-ink: "#26262a"
   idle-grey: "#6a6a70"
+  pill-icon: "#d0d0d4"
+  mark-grey: "#8a8e94"
 typography:
   display:
     fontFamily: "Archivo, system-ui, sans-serif"
@@ -31,6 +33,12 @@ typography:
     fontWeight: 900
     lineHeight: 0.92
     letterSpacing: "-0.03em"
+    fontVariation: "'wdth' 88"
+  title-large:
+    fontFamily: "Archivo, system-ui, sans-serif"
+    fontSize: "clamp(26px, 2.4vw, 34px)"
+    fontWeight: 900
+    letterSpacing: "-0.02em"
     fontVariation: "'wdth' 88"
   title:
     fontFamily: "Archivo, system-ui, sans-serif"
@@ -64,16 +72,18 @@ typography:
     fontSize: "0.92em"
     fontWeight: 600
   wordmark:
-    fontFamily: "VL Wordmark, Segoe UI, sans-serif"
+    fontFamily: "\"VL Wordmark\", \"Segoe UI Variable Display\", \"Segoe UI\", sans-serif"
     fontWeight: 700
     letterSpacing: "-0.037em"
   pill:
-    fontFamily: "VL Pill, Segoe UI, system-ui, sans-serif"
+    fontFamily: "\"VL Pill\", \"Segoe UI\", system-ui, sans-serif"
     fontSize: "14.5px"
     fontWeight: 600
 rounded:
   block: "0px"
   overlay: "24px"
+  pill-chip: "99px"
+  pill-bar: "9px"
   capsule: "999px"
 spacing:
   seam: "2px"
@@ -164,7 +174,8 @@ The app ships amber `#f6b24e` and coral `#ff6b6b` as its own defaults for questi
 - **Seam Grey** (`#d5d9de`): the How it works wire and hover fills.
 - **Ink Soft** (`#3d4045`): secondary text on light grounds (7:1 or better on grey and white).
 - **On-ink Soft** (`#c9cdd1`): secondary text on ink.
-- **Plate** (`#1c1c1e`), **Badge** (`#1d1d1f`), **Loop Grey** (`#ececee`), **Pill Grey** (`#2a2a2c` at 95%): the app's own surfaces, used only for the lockup, the nav hover pill and the speech pill.
+- **Plate** (`#1c1c1e`), **Badge** (`#1d1d1f`), **Loop Grey** (`#ececee`), **Pill Grey** (`#2a2a2c` at 95%), **Pill Icon** (`#d0d0d4`): the app's own surfaces, used only for the lockup, the nav hover pill and the speech pill.
+- **Mark Grey** (`#8a8e94`): the square marks on the VoiceMode side of the comparison.
 
 ### Named rules
 **Three colours, three meanings.** Teal, blue and yellow are the only saturated colours on the site. Teal leads. Never add a fourth hue, and never use a colour for something that contradicts its meaning, such as yellow on a speech element.
@@ -177,8 +188,9 @@ Archivo, self-hosted as a variable subset, is the only text face. The wordmark a
 
 ### Hierarchy
 - **Display** (900, clamp 56 to 96px, line-height 0.9, -0.03em, 88% width): the hero headline only, one line per span.
-- **Headline** (900, clamp 44 to 80px, 0.92): section headings. The pad-profile page's h1 uses the same treatment at up to 88px.
-- **Title** (800, 22px): sub-sections, panel and step headings. In the "Hear each kind" and "Without leaving the keyboard" rows it scales to 26 to 34px at 900.
+- **Headline** (900, clamp 44 to 80px, 0.92): section headings, including the pad-profile page's second heading. That page's h1 uses Display.
+- **Title large** (900, clamp 26 to 34px, 88% width): the "Hear each kind" and "Without leaving the keyboard" headings, and the numerals in the install and pad-profile step tabs.
+- **Title** (800, 22px): sub-sections, panel and step headings.
 - **Lead** (19px, 1.45): the paragraph beside each section heading. About 36 to 46ch.
 - **Body** (17px, 1.5): everything else. Measure capped at 52 to 68ch.
 - **Label** (800, 13px, 0.1em, uppercase): small labels inside a component, such as the location under a How it works heading, the security row names and "Pick its voice".
@@ -209,7 +221,7 @@ An active or lit tile shows an 8px inset bar along its bottom edge in its event 
 ## Shapes
 
 - Blocks are square-cornered: buttons, panels, tiles, chips, number tabs and code.
-- Only the app's own objects are round: the lockup plate and nav hover (capsule), the speech pill (24px) with its round dot and buttons, and the vl badge.
+- Only the app's own objects are round: the lockup plate and nav hover (capsule), the speech pill (24px) with its chips (99px), bars (9px), round dot and ✕, and the vl badge.
 - Bars are long flat rectangles at -7°, `mix-blend-mode: multiply`. Small square marks (10px) mark list items.
 
 ## Components
