@@ -67,5 +67,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" --draft --title "VoiceLoop $VERSION" --notes-file out/notes.md \
+          gh release create "$GITHUB_REF_NAME" --draft --title "voiceloop $VERSION" --notes-file out/notes.md \
             "out/voiceloop-$VERSION-windows.zip" out/voiceloop.exe out/voiceloop_hook.py out/SHA256SUMS.txt
