@@ -121,7 +121,7 @@ h3 { margin: 0; font-weight: 800; font-size: 22px; line-height: 1.15; letter-spa
 .packet { position: absolute; z-index: 0; left: 0; top: 0; width: 64px; height: 14px; margin: -7px 0 0 -32px; background: var(--c, var(--teal)); opacity: 0; pointer-events: none; }
 .node { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 10px; padding: 26px 26px 24px; background: var(--grey); transition: box-shadow .25s, transform .25s cubic-bezier(.2, .8, .2, 1); }
 .node p { margin: 0; color: var(--ink-2); }
-.node .where { color: var(--ink-2); }
+.node .where { margin-top: -4px; color: var(--ink-2); }
 .node code { align-self: flex-start; padding: 6px 9px; background: var(--white); }
 .node .meta { font-size: 14px; color: var(--ink-2); }
 .node.lit { box-shadow: inset 0 -8px 0 var(--c, var(--teal)); }
