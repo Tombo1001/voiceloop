@@ -8,6 +8,8 @@
 :root {
   --grey: #e6e9ec; --grey-d: #d5d9de; --ink: #0a0a0a; --ink-2: #3d4045; --white: #fff;
   --teal: #4fd1c5; --amber: #f6b24e; --coral: #ff6b6b;
+  /* Event colours in How it works, as Tom has them set in the app (2026-11-10) */
+  --speech: var(--teal); --question: #24a0ff; --approval: #e8bf2c;
   --gutter: clamp(16px, 3.3vw, 48px); --max: 1680px;
 }
 * { box-sizing: border-box; }

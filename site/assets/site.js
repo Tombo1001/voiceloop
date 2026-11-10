@@ -142,9 +142,9 @@ for (const p of pills) {
 const chain = document.querySelector(".chain"), nodes = [...chain.querySelectorAll(".node")], packet = chain.querySelector(".packet");
 const howPill = pills.find(p => p.who === "how");
 const KINDS = {
-  reply: { colour: "var(--teal)", thread: "fix the login bug" },
-  question: { colour: "var(--amber)", thread: "refactor billing" },
-  approval: { colour: "var(--coral)", thread: "deploy to staging" },
+  reply: { colour: "var(--speech)", thread: "fix the login bug" },
+  question: { colour: "var(--question)", thread: "refactor billing" },
+  approval: { colour: "var(--approval)", thread: "deploy to staging" },
 };
 function centre(n) {
   const a = n.getBoundingClientRect(), c = chain.getBoundingClientRect(), vertical = getComputedStyle(chain).gridTemplateColumns.split(" ").length < 2;
