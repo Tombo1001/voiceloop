@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "site/index.html"
+        ],
+        "createdAt": "2026-11-10T10:57:46.341Z",
+        "reason": "Agent, checked on the render 2026-11-10: hits are the absolutely positioned decorative bar layer in each section, the pill (geometry ported 1:1 from the app, text centred in a 54px row), and the pad key list's deliberate flush number tab. Real text has 16px+ inset everywhere."
+      }
+    ]
+  }
+}
