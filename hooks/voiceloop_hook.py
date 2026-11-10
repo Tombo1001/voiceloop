@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
-"""Claude Code hook for VoiceLoop. Python 3.8+, standard library only.
+"""Claude Code hook for voiceloop. Python 3.8+, standard library only.
 
 Setting up (run once, on the machine where Claude Code runs):
 
   python3 voiceloop_hook.py setup --url http://PC-ADDRESS:8765 --token TOKEN
-  python3 voiceloop_hook.py test     sends a test phrase to the VoiceLoop PC
+  python3 voiceloop_hook.py test     sends a test phrase to the voiceloop PC
   python3 voiceloop_hook.py remove   takes the hooks out of ~/.claude/settings.json
 
-Settings, About in VoiceLoop shows the address and token, and copies the setup command.
+Settings, About in voiceloop shows the address and token, and copies the setup command.
 
 The modes Claude Code runs:
 
   voiceloop_hook.py prompt   (UserPromptSubmit) remembers which session you last typed into
-  voiceloop_hook.py stop     (Stop) speaks that session's final reply on the VoiceLoop PC
+  voiceloop_hook.py stop     (Stop) speaks that session's final reply on the voiceloop PC
   voiceloop_hook.py ask      (PreToolUse, AskUserQuestion) question chime, then reads the question
   voiceloop_hook.py notify   (Notification) approval chime for permission prompts
 
@@ -276,8 +276,8 @@ def block(reason):
 
 def unreachable(e):
     if isinstance(e, NotSetUp):
-        return "VoiceLoop isn't set up on this machine yet (run voiceloop_hook.py setup)"
-    return "VoiceLoop isn't reachable on its PC"
+        return "voiceloop isn't set up on this machine yet (run voiceloop_hook.py setup)"
+    return "voiceloop isn't reachable on its PC"
 
 
 def handle_mute(data, unmute):
@@ -291,15 +291,15 @@ def handle_mute(data, unmute):
         return
     log(f"{'unmuted' if unmute else 'muted'} {thread[:8]} {title!r}")
     if unmute:
-        block(f"VoiceLoop: {name} is unmuted. Its replies will be read out again.")
+        block(f"voiceloop: {name} is unmuted. Its replies will be read out again.")
     else:
-        block(f"VoiceLoop: {name} is muted. Type /unmute here to hear it again.")
+        block(f"voiceloop: {name} is muted. Type /unmute here to hear it again.")
 
 
 def handle_resend(data):
     text = speakable(last_reply(data))
     if not text:
-        block("VoiceLoop: there's no earlier reply in this thread to read out.")
+        block("voiceloop: there's no earlier reply in this thread to read out.")
         return
     thread, title = thread_for(data)
     try:
@@ -311,7 +311,7 @@ def handle_resend(data):
         block(f"{unreachable(e)}, so nothing was replayed.")
         return
     log(f"resend {title[:40]!r} {len(text)} chars")
-    block("VoiceLoop: reading the last reply again.")
+    block("voiceloop: reading the last reply again.")
 
 
 # ---- setup, remove, test: run by hand, never by Claude Code ----
@@ -323,7 +323,7 @@ USAGE = """usage:
 
 setup writes the address and token to {conf}
 and adds the four hooks to Claude Code's settings.json (a dated backup is made first).
-Settings, About in VoiceLoop shows the address and token."""
+Settings, About in voiceloop shows the address and token."""
 
 EVENTS = {  # Claude Code event -> (hook mode, matcher, timeout in seconds)
     "UserPromptSubmit": ("prompt", None, 5),
@@ -355,7 +355,7 @@ def is_ours(entry):
 
 
 def edit_settings(path, add):
-    """Remove every VoiceLoop hook from settings.json, then add ours back if add is set.
+    """Remove every voiceloop hook from settings.json, then add ours back if add is set.
     Returns the backup path, or "" when the file didn't exist."""
     settings, backup = {}, ""
     if os.path.exists(path):
@@ -395,17 +395,17 @@ def edit_settings(path, add):
 
 def send_test():
     try:
-        status, _ = post("/speak", {"Text": "VoiceLoop is paired with this machine.", "Kind": "speech",
-                                    "Thread": "voiceloop-test", "Title": "VoiceLoop test",
+        status, _ = post("/speak", {"Text": "voiceloop is paired with this machine.", "Kind": "speech",
+                                    "Thread": "voiceloop-test", "Title": "voiceloop test",
                                     "Active": True, "Force": True})
-        print(f"Test sent to {load_config()[0]} (HTTP {status}). You should hear it on the VoiceLoop PC.")
+        print(f"Test sent to {load_config()[0]} (HTTP {status}). You should hear it on the voiceloop PC.")
         return 0
     except NotSetUp:
         print("Not set up yet. Run: voiceloop_hook.py setup --url ... --token ...")
     except urllib.error.HTTPError as e:
-        print(f"VoiceLoop answered HTTP {e.code}." + (" The token doesn't match: copy it again from Settings, About." if e.code == 401 else ""))
+        print(f"voiceloop answered HTTP {e.code}." + (" The token doesn't match: copy it again from Settings, About." if e.code == 401 else ""))
     except Exception as e:
-        print(f"Couldn't reach VoiceLoop at {load_config()[0]}: {e}\n"
+        print(f"Couldn't reach voiceloop at {load_config()[0]}: {e}\n"
               "Check that it's running, the address is right, and the PC's firewall lets this machine in.")
     return 1
 
@@ -424,7 +424,7 @@ def admin(mode, args):
         print(f"Saved the address and token to {CONFIG_FILE}")
         path = claude_settings_path(args)
         backup = edit_settings(path, add=True)
-        print(f"Added the VoiceLoop hooks to {path}" + (f" (backup: {backup})" if backup else ""))
+        print(f"Added the voiceloop hooks to {path}" + (f" (backup: {backup})" if backup else ""))
         print("New Claude Code sessions pick them up; restart any that are open.")
         return send_test()
     if mode == "remove":
@@ -433,8 +433,8 @@ def admin(mode, args):
             print(f"{path} doesn't exist, so there's nothing to remove.")
             return 0
         backup = edit_settings(path, add=False)
-        print(f"Removed the VoiceLoop hooks from {path} (backup: {backup})")
-        print(f"The address and token are still in {CONFIG_FILE}; delete it if you're done with VoiceLoop.")
+        print(f"Removed the voiceloop hooks from {path} (backup: {backup})")
+        print(f"The address and token are still in {CONFIG_FILE}; delete it if you're done with voiceloop.")
         return 0
     if mode == "test":
         return send_test()
@@ -499,7 +499,7 @@ def main():
         status, _ = post("/speak", {"Text": text, "Kind": kind, "Thread": thread,
                                     "Title": title, "Active": sid == current})
         log(f"sent {kind} {title[:40]!r} active={sid == current} {len(text)} chars -> {status}")
-    except Exception as e:          # VoiceLoop PC asleep, listener closed: stay quiet
+    except Exception as e:          # voiceloop PC asleep, listener closed: stay quiet
         log(f"send failed {sid[:8]}: {e}")
     if forked:
         os._exit(0)

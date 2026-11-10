@@ -33,7 +33,7 @@ func TestRenderPreview(t *testing.T) {
 	}
 	frames := []*image.RGBA{
 		mk(PillContent{Kind: "speech"}, barLevels(env, 1200, nBars)),
-		mk(PillContent{Kind: "speech", Title: "VoiceLoop", MaxTitle: 260}, barLevels(env, 1200, nBars)),
+		mk(PillContent{Kind: "speech", Title: "voiceloop", MaxTitle: 260}, barLevels(env, 1200, nBars)),
 		mk(PillContent{Kind: "speech", Title: long, MaxTitle: 260}, barLevels(env, 2600, nBars)),
 		mk(PillContent{Kind: "question", Title: long, Fit: true}, barLevels(envelope(chimePCM("question"), toneRate), 300, nBars)),
 		mk(PillContent{Kind: "approval", Title: "Patch the web server", MaxTitle: 260}, barLevels(envelope(chimePCM("approval"), toneRate), 200, nBars)),
@@ -61,7 +61,7 @@ func TestRenderPreview(t *testing.T) {
 	fo, _ := os.Create(out)
 	defer fo.Close()
 	png.Encode(fo, sheet)
-	_, lay := renderOverlay(scale, pal, PillContent{Kind: "speech", Title: "VoiceLoop", MaxTitle: 260}, nil, 1)
+	_, lay := renderOverlay(scale, pal, PillContent{Kind: "speech", Title: "voiceloop", MaxTitle: 260}, nil, 1)
 	if lay.Mute.Empty() || lay.Stop.Empty() || lay.Mute.Overlaps(lay.Stop) {
 		t.Fatalf("button areas wrong: %+v", lay)
 	}

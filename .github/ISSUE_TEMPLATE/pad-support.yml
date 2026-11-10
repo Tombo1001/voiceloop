@@ -1,11 +1,11 @@
 name: My macropad isn't supported
-description: Ask for VoiceLoop to support another macropad
+description: Ask for voiceloop to support another macropad
 labels: [macropad]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for helping VoiceLoop support more pads. To find the USB IDs, open Device Manager, find the pad under "Human Interface Devices" or "Keyboards", open Properties, Details, and choose "Hardware Ids". They look like `VID_1189&PID_8890`.
+        Thanks for helping **voiceloop** support more pads. To find the USB IDs, open Device Manager, find the pad under "Human Interface Devices" or "Keyboards", open Properties, Details, and choose "Hardware Ids". They look like `VID_1189&PID_8890`.
   - type: input
     id: usb
     attributes:

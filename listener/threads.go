@@ -1,6 +1,6 @@
 package main
 
-// Threads VoiceLoop has heard from, and which are muted. Saved to threads.json.
+// Threads voiceloop has heard from, and which are muted. Saved to threads.json.
 
 import (
 	"encoding/json"

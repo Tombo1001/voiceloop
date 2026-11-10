@@ -319,7 +319,7 @@ func symbolsSTL(grids []placedGrid, thick float64) []byte {
 	}
 	var b bytes.Buffer
 	head := make([]byte, 80)
-	copy(head, "VoiceLoop key symbols")
+	copy(head, "voiceloop key symbols")
 	b.Write(head)
 	binary.Write(&b, binary.LittleEndian, uint32(len(tris)))
 	for _, t := range tris {
@@ -548,7 +548,7 @@ func symbolsPlate(p *PadProfile, dir string) ([]byte, int, error) {
 	return symbolsSTL(grids, float64(p.Symbols.Layers)*p.Symbols.LayerHeight), len(grids), nil
 }
 
-// actionIcons maps VoiceLoop's pad actions to the starter icons.
+// actionIcons maps voiceloop's pad actions to the starter icons.
 var actionIcons = map[string]string{
 	"ctrl-space": "dictate.png", "ctrl-space,slash": "slash-command.png", "enter": "send.png",
 	"ctrl-alt-x": "stop-speech.png", "ctrl-alt-v": "voice-mode.png", "mute": "mute.png",

@@ -1,6 +1,6 @@
 # Contributing
 
-Issues and pull requests are welcome. VoiceLoop is a small project run in spare time, so replies may take a few days.
+Issues and pull requests are welcome. **voiceloop** is a small project run in spare time, so replies may take a few days.
 
 ## Reporting a bug
 

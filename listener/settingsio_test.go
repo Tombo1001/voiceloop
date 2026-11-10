@@ -53,8 +53,8 @@ func TestSettingsBundleRoundTrip(t *testing.T) {
 
 func TestSettingsBundleBadFiles(t *testing.T) {
 	for _, c := range []struct{ in, want string }{
-		{`<padProfile/>`, "not a VoiceLoop settings file"},
-		{`{"voice": "x"}`, "not a VoiceLoop settings file"},
+		{`<padProfile/>`, "not a voiceloop settings file"},
+		{`{"voice": "x"}`, "not a voiceloop settings file"},
 		{`{"voiceloop_settings": 9, "settings": {}}`, "format 9 isn't supported"},
 		{`{"voiceloop_settings": 1, "settings": {"offset_y": "high"}}`, "don't fit"},
 	} {

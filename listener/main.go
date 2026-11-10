@@ -1,6 +1,6 @@
 //go:build windows
 
-// VoiceLoop listener: receives Claude Code replies from the hook, turns
+// voiceloop listener: receives Claude Code replies from the hook, turns
 // them into speech with Kokoro (or any OpenAI-style speech server), and plays them. Tray icon shows voice mode on or off.
 package main
 
@@ -147,7 +147,7 @@ func isOn() bool { mu.Lock(); defer mu.Unlock(); return voiceOn }
 // ---------- tray ----------
 
 func onReady() {
-	systray.SetTitle("VoiceLoop")
+	systray.SetTitle("voiceloop")
 	mToggle = systray.AddMenuItem("", "")
 	mStop := systray.AddMenuItem("Stop speaking (Ctrl+Alt+X)", "")
 	mSettings := systray.AddMenuItem("Settings…", "")
@@ -193,11 +193,11 @@ func refreshTray() {
 	}
 	if isOn() {
 		systray.SetIcon(logo.ICO(logo.Teal, 16, 20, 24, 32, 48))
-		systray.SetTooltip("VoiceLoop: voice mode ON")
+		systray.SetTooltip("voiceloop: voice mode ON")
 		mToggle.SetTitle("Turn voice mode off (Ctrl+Alt+V)")
 	} else {
 		systray.SetIcon(logo.ICO(logo.Grey, 16, 20, 24, 32, 48))
-		systray.SetTooltip("VoiceLoop: voice mode off")
+		systray.SetTooltip("voiceloop: voice mode off")
 		mToggle.SetTitle("Turn voice mode on (Ctrl+Alt+V)")
 	}
 }

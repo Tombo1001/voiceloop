@@ -3,14 +3,14 @@ package main
 // Macropad actions and the ch57x-8890 protocol. Which pad, which codes and the
 // key map come from the pad profile (padprofile.go). The protocol is ported from
 // ch57x-keyboard-tool (kriomant, MIT/Apache-2.0), src/keyboard/k8890.rs. The key
-// map is stored on the pad itself, so it works with or without VoiceLoop running.
+// map is stored on the pad itself, so it works with or without voiceloop running.
 
 import (
 	"fmt"
 	"strings"
 )
 
-// PadMap is the key map as VoiceLoop 0.5.x kept it in settings.json. It's only
+// PadMap is the key map as voiceloop 0.5.x kept it in settings.json. It's only
 // read once, to carry it over into pad-profile.xml.
 type PadMap struct {
 	Keys      [3]string `json:"keys"`

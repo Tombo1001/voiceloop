@@ -2,7 +2,7 @@
 
 package main
 
-// The on-screen pill shown while VoiceLoop is preparing or playing audio.
+// The on-screen pill shown while voiceloop is preparing or playing audio.
 // A layered, topmost, no-activate window: it never takes focus from what you're typing in.
 
 import (
@@ -129,7 +129,7 @@ func overlayInit() {
 		log.Printf("overlay: register class: %v", err)
 		return
 	}
-	title, _ := syscall.UTF16PtrFromString("VoiceLoop")
+	title, _ := syscall.UTF16PtrFromString("voiceloop")
 	ovHwnd, _, _ = procCreateWindowEx.Call(
 		wsExLayered|wsExTopmost|wsExToolWindow|wsExNoActivate,
 		uintptr(unsafe.Pointer(className)), uintptr(unsafe.Pointer(title)), wsPopup,

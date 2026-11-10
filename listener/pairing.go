@@ -1,6 +1,6 @@
 package main
 
-// First run and pairing. VoiceLoop writes config.json with a random token the first
+// First run and pairing. voiceloop writes config.json with a random token the first
 // time it starts, and the About tab shows that token with the addresses the hook can
 // use, so pairing is a copy and paste rather than a file edited by hand.
 

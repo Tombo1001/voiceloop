@@ -1,10 +1,10 @@
 # Third-party notices
 
-VoiceLoop is MIT-licensed (see `LICENSE`). It includes or is built from the work below.
+**voiceloop** is MIT-licensed (see `LICENSE`). It includes or is built from the work below.
 
 ## ch57x-keyboard-tool
 
-`listener/macropad.go` ports the macropad protocol from [ch57x-keyboard-tool](https://github.com/kriomant/ch57x-keyboard-tool) by Mikhail Trishchenkov (kriomant), licensed MIT OR Apache-2.0. VoiceLoop uses it under the MIT licence:
+`listener/macropad.go` ports the macropad protocol from [ch57x-keyboard-tool](https://github.com/kriomant/ch57x-keyboard-tool) by Mikhail Trishchenkov (kriomant), licensed MIT OR Apache-2.0. **voiceloop** uses it under the MIT licence:
 
 ```
 MIT License
@@ -29,6 +29,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+## Fonts
+
+**On voiceloop.dev** (`site/assets/fonts/`), each with its licence text next to it:
+
+- **Archivo** by the Archivo Project Authors (Omnibus-Type), SIL Open Font License 1.1. `archivo.woff2` is a subset of the variable font. Licence: `site/assets/fonts/OFL-archivo.txt`.
+- **Selawik** by Microsoft Corporation, SIL Open Font License 1.1, with Reserved Font Name "Selawik". `vl-wordmark.woff2` and `vl-pill.woff2` are subsets of it. The OFL doesn't let a modified version keep a Reserved Font Name, so the subsets are renamed "VL Wordmark" and "VL Pill". Selawik is a trademark of Microsoft Corporation. Licence: `site/assets/fonts/OFL-selawik.txt`.
+
+**In voiceloop.exe**, the pill's text is drawn with **Go Medium**, made by Bigelow & Holmes for the Go project and shipped in `golang.org/x/image/font/gofont` under the same licence as the Go module below. Colour emoji in the pill are drawn from Windows' own Segoe UI Emoji at run time. No copy of that font is in this repo or the exe.
 
 ## Go modules used to build voiceloop.exe
 

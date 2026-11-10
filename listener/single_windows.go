@@ -2,7 +2,7 @@
 
 package main
 
-// One VoiceLoop at a time. A second launch (e.g. from the Start menu) asks the
+// One voiceloop at a time. A second launch (e.g. from the Start menu) asks the
 // running copy to open Settings, then exits.
 
 import (
@@ -17,7 +17,7 @@ const (
 	eventName = `Local\VoiceLoopShowSettings`
 )
 
-// claimSingleInstance returns false if another VoiceLoop is already running
+// claimSingleInstance returns false if another voiceloop is already running
 // (after signalling it to show Settings).
 func claimSingleInstance() bool {
 	mn, _ := windows.UTF16PtrFromString(mutexName)

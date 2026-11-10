@@ -1,4 +1,4 @@
-// Package logo draws the VoiceLoop "vl" mark: a teal v and a white l on a dark circle.
+// Package logo draws the voiceloop "vl" mark: a teal v and a white l on a dark circle.
 package logo
 
 import (

@@ -113,10 +113,10 @@ func ParsePadProfile(b []byte) (*PadProfile, error) {
 		return nil, fmt.Errorf("not a pad profile: the root element should be <padProfile>")
 	}
 	if ns := p.XMLName.Space; ns != "" && ns != padNS && ns != padNSOld {
-		return nil, fmt.Errorf("not a VoiceLoop pad profile: its namespace is %q, expected %q", ns, padNS)
+		return nil, fmt.Errorf("not a voiceloop pad profile: its namespace is %q, expected %q", ns, padNS)
 	}
 	if p.Version != 1 {
-		return nil, fmt.Errorf("profile version %d isn't supported by this VoiceLoop (it reads version 1)", p.Version)
+		return nil, fmt.Errorf("profile version %d isn't supported by this voiceloop (it reads version 1)", p.Version)
 	}
 	if err := p.check(); err != nil {
 		return nil, err
@@ -137,7 +137,7 @@ func (p *PadProfile) check() error {
 		return fmt.Errorf("<usb reportLength> should be the report size in bytes, including the report ID")
 	}
 	if _, ok := padEncoders[p.Protocol]; !ok {
-		return fmt.Errorf("this VoiceLoop doesn't know the protocol %q (it knows: %s)", p.Protocol, strings.Join(padEncoderNames(), ", "))
+		return fmt.Errorf("this voiceloop doesn't know the protocol %q (it knows: %s)", p.Protocol, strings.Join(padEncoderNames(), ", "))
 	}
 	if p.Limits.MaxSequence < 1 {
 		return fmt.Errorf("<limits maxSequence> should be at least 1")
@@ -283,7 +283,7 @@ func (p *PadProfile) Marshal() []byte {
 	p.NS = padNS
 	b, _ := xml.MarshalIndent(p, "", "  ")
 	head := "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-		"<!-- VoiceLoop pad profile. Import it from Settings > Macropad. Schema: pad-profile.xsd -->\n"
+		"<!-- voiceloop pad profile. Import it from Settings > Macropad. Schema: pad-profile.xsd -->\n"
 	return append(append([]byte(head), b...), '\n')
 }
 
@@ -369,7 +369,7 @@ var pads padStore
 func (s *padStore) path() string { return filepath.Join(s.dir, "pad-profile.xml") }
 
 // load reads pad-profile.xml, or makes it from the built-in default, carrying
-// over a key map saved by VoiceLoop 0.5.x in settings.json.
+// over a key map saved by voiceloop 0.5.x in settings.json.
 func (s *padStore) load(dir string, legacy *PadMap) (migrated bool, err error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()

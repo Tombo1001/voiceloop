@@ -2,7 +2,7 @@
 
 package main
 
-// A native Windows "Save As" dialog, opened by VoiceLoop itself so an export
+// A native Windows "Save As" dialog, opened by voiceloop itself so an export
 // can write two files (settings and pad profile) into the folder you pick.
 
 import (

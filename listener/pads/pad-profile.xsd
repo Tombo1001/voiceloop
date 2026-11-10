@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  VoiceLoop pad profile, version 1.
+  voiceloop pad profile, version 1.
 
   A profile describes one model of macropad (how to find it on USB, which
   protocol it speaks, its keys, knobs and light modes) plus the user's key map.
-  VoiceLoop imports and exports these from Settings > Macropad.
+  voiceloop imports and exports these from Settings > Macropad.
 
   To add a pad: copy a published profile, change usb/keys/knobs/lights to match
-  your pad, and keep <protocol> to one VoiceLoop knows. Known protocols:
+  your pad, and keep <protocol> to one voiceloop knows. Known protocols:
     ch57x-8890   CH57x pads with USB product ID 0x8890 (ported from ch57x-keyboard-tool)
-  A pad that needs a new protocol needs code in VoiceLoop as well.
+  A pad that needs a new protocol needs code in voiceloop as well.
 
   Action syntax (bind/@action):
     ""                      nothing
@@ -143,7 +143,7 @@
         <xs:element name="symbols" minOccurs="0">
           <xs:annotation><xs:documentation>
             Flat symbols to 3D print and glue onto the keys and knob caps. Each icon (a PNG or
-            JPEG in VoiceLoop's icons folder: dark or opaque artwork) is scaled to fit size mm,
+            JPEG in voiceloop's icons folder: dark or opaque artwork) is scaled to fit size mm,
             square or round (knob caps are always round), and printed layers x layerHeight thick.
           </xs:documentation></xs:annotation>
           <xs:complexType>

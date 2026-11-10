@@ -2,7 +2,7 @@
 <html lang="en-GB">
 <head>
 <meta charset="utf-8">
-<title>VoiceLoop</title>
+<title>voiceloop</title>
 <link rel="icon" href="/favicon.ico?v=031" sizes="any">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png?v=031">
 <link rel="manifest" href="/manifest.webmanifest?v=031">
@@ -296,13 +296,13 @@ code { font-family: "Cascadia Mono", Consolas, monospace; font-size: 13px; color
           <button class="btn" id="padexport">Export…</button></div>
         <div class="row"><div class="lbl">Import<span class="hint">Loads a pad profile from an XML file and replaces the one above. The current one is saved first, dated, in the pad-profiles folder</span></div>
           <button class="btn" id="padimport">Import…</button><input type="file" id="padfile" accept=".xml,application/xml,text/xml" style="display:none"></div>
-        <div class="row"><div class="lbl">Start again<span class="hint">Back to the built-in 3 keys + knob pad and the VoiceLoop key map. The current profile is saved first</span></div>
+        <div class="row"><div class="lbl">Start again<span class="hint">Back to the built-in 3 keys + knob pad and the <b>voiceloop</b> key map. The current profile is saved first</span></div>
           <button class="btn" id="padreset">Use the built-in pad</button></div>
       </div>
     </section>
 
     <section id="about">
-      <h2>VoiceLoop</h2>
+      <h2 style="text-transform:none">voiceloop</h2>
       <div class="card">
         <div class="row"><div class="lbl">Version</div><span id="ver"></span></div>
         <div class="row"><div class="lbl">Installed in</div><code id="folder"></code></div>
@@ -539,17 +539,17 @@ let t0 = performance.now();
 })(t0);
 setInterval(() => { pvKind = {speech: "question", question: "approval", approval: "speech"}[pvKind]; drawPreview(); }, 2500);
 
-// Close this window when VoiceLoop quits or restarts (the event stream drops).
+// Close this window when voiceloop quits or restarts (the event stream drops).
 function goneAway() {
   window.close(); // allowed: this app window was opened with a single page
-  document.body.innerHTML = "<p style='padding:30px;color:#a0a0a6'>VoiceLoop has closed or restarted. Open Settings again from the tray icon or the Start menu.</p>";
+  document.body.innerHTML = "<p style='padding:30px;color:#a0a0a6'><b>voiceloop</b> has closed or restarted. Open Settings again from the tray icon or the Start menu.</p>";
 }
 function watchVoiceLoop() {
   const es = new EventSource("/api/events?k=" + encodeURIComponent(key));
   es.onerror = () => {
     es.close();
     // Gone (no answer) or restarted (our key no longer works): close. Still the same
-    // VoiceLoop: the stream just dropped, so reconnect in a moment.
+    // voiceloop: the stream just dropped, so reconnect in a moment.
     fetch("/api/state", {headers: {"X-VL-Key": key}})
       .then(r => { if (r.ok) setTimeout(watchVoiceLoop, 3000); else goneAway(); })
       .catch(goneAway);
@@ -561,14 +561,14 @@ if (key) watchVoiceLoop();
 
 // ---------- macropad ----------
 // Everything about the pad comes from its profile (GET /api/pad): keys, knobs,
-// light modes and the key map. Actions here are VoiceLoop's, the same for any pad.
+// light modes and the key map. Actions here are voiceloop's, the same for any pad.
 // [value, menu label, short label on the drawing, detail]
 const PAD_ACTIONS = [
   ["ctrl-space", "Dictate: start / stop", "Dictate", "Handy, Ctrl+Space"],
   ["ctrl-space,slash", "Dictate a / command", "/ command", "starts Handy, types / (say \"repeat\" for /repeat)"],
   ["enter", "Send", "Send", "Enter"],
-  ["ctrl-alt-x", "Stop speech", "Stop speech", "VoiceLoop, Ctrl+Alt+X"],
-  ["ctrl-alt-v", "Voice mode on / off", "Voice mode", "VoiceLoop, Ctrl+Alt+V"],
+  ["ctrl-alt-x", "Stop speech", "Stop speech", "voiceloop, Ctrl+Alt+X"],
+  ["ctrl-alt-v", "Voice mode on / off", "Voice mode", "voiceloop, Ctrl+Alt+V"],
   ["volumeup", "Volume up", "Vol +", ""],
   ["volumedown", "Volume down", "Vol −", ""],
   ["mute", "Mute", "Mute", ""],
@@ -778,7 +778,7 @@ function padStatusText() {
   $("#padstate").classList.toggle("pad-dirty", padFound && padDirty);
   $("#padhint").textContent = !padFound ? "Plug it in by USB. No driver or install needed."
     : padDirty ? "Changes aren't on the pad yet. Press Upload."
-    : "The layout is stored on the pad itself, so it keeps working even when VoiceLoop isn't running.";
+    : "The layout is stored on the pad itself, so it keeps working even when voiceloop isn't running.";
   $("#padupload").disabled = !padFound;
   $("#padupload").style.opacity = padFound ? 1 : 0.5;
 }
@@ -816,7 +816,7 @@ $("#padfile").addEventListener("change", e => {
     .then(r => r.json()).then(r => {
       if (!r.ok) { alert("That file wasn't imported:\n\n" + r.error); return; }
       padApply(r); padDirty = true; padStatusText();
-      alert(`Imported "${r.profile.name}".\n\nThe previous profile was saved as pad-profiles\\${r.backup || "(nothing to save)"} in the VoiceLoop folder.\n\nPress Upload to put the new key map on the pad.`);
+      alert(`Imported "${r.profile.name}".\n\nThe previous profile was saved as pad-profiles\\${r.backup || "(nothing to save)"} in the voiceloop folder.\n\nPress Upload to put the new key map on the pad.`);
     }).catch(() => toast("Import failed"));
 });
 $("#padreset").addEventListener("click", () => {
@@ -849,17 +849,17 @@ $("#setimport").addEventListener("click", () => $("#setfile").click());
 $("#setfile").addEventListener("change", e => {
   const f = e.target.files[0]; e.target.value = "";
   if (!f) return;
-  if (!confirm(`Replace all VoiceLoop settings with the ones in ${f.name}?\n\nThe current settings are saved first, in the settings-backups folder.`)) return;
+  if (!confirm(`Replace all voiceloop settings with the ones in ${f.name}?\n\nThe current settings are saved first, in the settings-backups folder.`)) return;
   f.text().then(text => fetch("/api/settings/import", {method: "POST", headers: {"X-VL-Key": key, "Content-Type": "application/json"}, body: text}))
     .then(r => r.json()).then(r => {
       if (!r.ok) { alert("That file wasn't imported:\n\n" + r.error); return; }
       api("/api/state").then(fill).then(testKokoro);
-      alert("Settings imported.\n\nThe previous settings were saved as settings-backups\\" + r.backup + " in the VoiceLoop folder.");
+      alert("Settings imported.\n\nThe previous settings were saved as settings-backups\\" + r.backup + " in the voiceloop folder.");
     }).catch(() => toast("Import failed"));
 });
 
 api("/api/state").then(fill).then(testKokoro).catch(() => document.body.innerHTML =
-  "<p style='padding:30px'>This page has to be opened from the VoiceLoop tray icon (Settings…).</p>");
+  "<p style='padding:30px'>This page has to be opened from the <b>voiceloop</b> tray icon (Settings…).</p>");
 
 $("#pairshow").addEventListener("click", e => {
   const on = !e.target.dataset.on;

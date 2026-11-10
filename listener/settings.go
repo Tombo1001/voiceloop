@@ -15,7 +15,7 @@ import (
 	"sync"
 )
 
-// Config is config.json. VoiceLoop writes it on first run with a random token. Only listen
+// Config is config.json. voiceloop writes it on first run with a random token. Only listen
 // and token are used after that; the other fields seed settings.json on first run.
 type Config struct {
 	Listen    string  `json:"listen"`     // e.g. ":8765"
@@ -64,7 +64,7 @@ type Settings struct {
 	OffsetX        int    `json:"offset_x"`     // px at 100% scaling, from the anchored edge
 	OffsetY        int    `json:"offset_y"`
 
-	// Macropad key map from VoiceLoop 0.5.x. Moved into pad-profile.xml on first
+	// Macropad key map from voiceloop 0.5.x. Moved into pad-profile.xml on first
 	// start of 0.6, then cleared.
 	Pad *PadMap `json:"pad,omitempty"`
 }

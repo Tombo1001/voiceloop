@@ -37,8 +37,8 @@ func main() {
 	v := version.Info{}
 	v.SetFileVersion(string(m[1]))
 	v.SetProductVersion(string(m[1]))
-	v.Set(version.LangDefault, version.ProductName, "VoiceLoop")
-	v.Set(version.LangDefault, version.FileDescription, "VoiceLoop: speaks Claude's replies")
+	v.Set(version.LangDefault, version.ProductName, "voiceloop")
+	v.Set(version.LangDefault, version.FileDescription, "voiceloop: speaks Claude's replies")
 	rs.SetVersionInfo(v)
 	f, err := os.Create("rsrc_windows_amd64.syso")
 	if err != nil {

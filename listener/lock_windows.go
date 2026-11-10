@@ -29,7 +29,7 @@ const (
 )
 
 // lockWatch asks Windows to send lock and unlock messages to hwnd, and reads
-// the current state in case VoiceLoop starts (or is redeployed) while locked.
+// the current state in case voiceloop starts (or is redeployed) while locked.
 func lockWatch(hwnd uintptr) {
 	if r, _, err := procWTSRegister.Call(hwnd, 0); r == 0 { // NOTIFY_FOR_THIS_SESSION
 		log.Printf("lock watch unavailable: %v", err)

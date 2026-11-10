@@ -1,4 +1,4 @@
-# Install VoiceLoop for the current Windows user.
+# Install voiceloop for the current Windows user.
 #
 #   powershell -ExecutionPolicy Bypass -File install.ps1 [-HookFrom 192.168.1.20] [-Uninstall]
 #
@@ -8,7 +8,7 @@
 # address and token for the hook.
 #
 # The firewall rule needs an elevated PowerShell. Without one, the script skips it and
-# Windows asks about the firewall the first time VoiceLoop listens. -HookFrom limits the
+# Windows asks about the firewall the first time voiceloop listens. -HookFrom limits the
 # rule to the machine (or machines, comma-separated) that run Claude Code.
 
 param(
@@ -40,7 +40,7 @@ if ($Uninstall) {
     else { "The firewall rule $rule is still there. Run this again as administrator to remove it." }
   }
   Remove-Item $exe -ErrorAction SilentlyContinue
-  "VoiceLoop is uninstalled. Your settings, pad profile and icons are still in $dir. Delete that folder to remove them too."
+  "voiceloop is uninstalled. Your settings, pad profile and icons are still in $dir. Delete that folder to remove them too."
   return
 }
 
@@ -55,13 +55,13 @@ Unblock-File $exe   # downloaded files carry a mark that makes Windows ask befor
 # Start at logon, in the background (tray icon only).
 Set-ItemProperty -Path $run -Name VoiceLoop -Value "`"$exe`" --background"
 
-# Start menu entry: starts VoiceLoop, or opens Settings if it's already running.
+# Start menu entry: starts voiceloop, or opens Settings if it's already running.
 $sh = New-Object -ComObject WScript.Shell
 $sc = $sh.CreateShortcut($lnk)
 $sc.TargetPath = $exe
 $sc.WorkingDirectory = $dir
 $sc.IconLocation = "$exe,0"
-$sc.Description = "VoiceLoop settings"
+$sc.Description = "voiceloop settings"
 $sc.Save()
 
 if ($admin) {
@@ -73,9 +73,9 @@ if ($admin) {
   if ($HookFrom) { "Firewall: port $Port is open to $HookFrom on private networks." }
   else { "Firewall: port $Port is open on private networks. Use -HookFrom to limit it to the Claude Code machine." }
 } else {
-  "Skipped the firewall rule (not running as administrator). Windows will ask the first time VoiceLoop listens: allow it on private networks."
+  "Skipped the firewall rule (not running as administrator). Windows will ask the first time voiceloop listens: allow it on private networks."
 }
 
 Start-Process $exe -WorkingDirectory $dir
-"VoiceLoop $((Get-Item $exe).VersionInfo.ProductVersion) is installed in $dir and starts when you log on."
+"voiceloop $((Get-Item $exe).VersionInfo.ProductVersion) is installed in $dir and starts when you log on."
 "Settings is opening. The About tab shows the address and token for the hook."

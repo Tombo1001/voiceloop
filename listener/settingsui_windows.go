@@ -75,7 +75,7 @@ func settingsServer() {
 	})
 	mux.HandleFunc("/manifest.webmanifest", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/manifest+json")
-		w.Write([]byte(`{"name":"VoiceLoop","short_name":"VoiceLoop","display":"standalone",` +
+		w.Write([]byte(`{"name":"voiceloop","short_name":"voiceloop","display":"standalone",` +
 			`"background_color":"#1d1d1f","theme_color":"#1d1d1f",` +
 			`"icons":[{"src":"/icon-192.png","sizes":"192x192","type":"image/png"},` +
 			`{"src":"/icon-512.png","sizes":"512x512","type":"image/png"}]}`))
@@ -84,7 +84,7 @@ func settingsServer() {
 		w.Header().Set("Content-Type", "image/png")
 		w.Write(logoPNG)
 	})
-	// The settings page keeps this stream open. When VoiceLoop quits or restarts the
+	// The settings page keeps this stream open. When voiceloop quits or restarts the
 	// connection drops, and the page closes its window. EventSource can't send headers,
 	// so the key comes in the query string here.
 	mux.HandleFunc("/api/events", func(w http.ResponseWriter, r *http.Request) {
@@ -377,7 +377,7 @@ func settingsServer() {
 	}))
 	mux.HandleFunc("/api/reveal", guard(func(w http.ResponseWriter, r *http.Request) {
 		// Open Explorer on a file this run exported, with the file selected. Only
-		// paths VoiceLoop wrote itself are accepted.
+		// paths voiceloop wrote itself are accepted.
 		var b struct{ Path string }
 		_ = json.NewDecoder(io.LimitReader(r.Body, 4<<10)).Decode(&b)
 		if !wasExported(b.Path) {
@@ -433,8 +433,8 @@ func settingsServer() {
 			return
 		}
 		day := time.Now().Format("2006-01-02")
-		path := saveDialog("Export VoiceLoop settings", "voiceloop-settings-"+day+".json",
-			"VoiceLoop settings (*.json)", "*.json", "json")
+		path := saveDialog("Export voiceloop settings", "voiceloop-settings-"+day+".json",
+			"voiceloop settings (*.json)", "*.json", "json")
 		if path == "" {
 			json.NewEncoder(w).Encode(map[string]any{"ok": false, "cancelled": true})
 			return

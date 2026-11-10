@@ -1,4 +1,4 @@
-"""Serve ui.html with a fake VoiceLoop API, to check the Macropad tab renders.
+"""Serve ui.html with a fake voiceloop API, to check the Macropad tab renders.
 Usage: python3 mock.py UI_HTML PORT [big]"""
 import json, sys
 from http.server import BaseHTTPRequestHandler, HTTPServer

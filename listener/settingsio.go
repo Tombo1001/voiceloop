@@ -51,7 +51,7 @@ func (b SettingsBundle) marshal() []byte {
 }
 
 // parseSettingsBundle reads an exported file. Settings missing from it (say,
-// from an older VoiceLoop) take their defaults; out-of-range values are clamped.
+// from an older voiceloop) take their defaults; out-of-range values are clamped.
 func parseSettingsBundle(raw []byte) (SettingsBundle, error) {
 	raw = bytes.TrimPrefix(raw, []byte("\xef\xbb\xbf"))
 	var probe struct {
@@ -59,13 +59,13 @@ func parseSettingsBundle(raw []byte) (SettingsBundle, error) {
 		Settings json.RawMessage `json:"settings"`
 	}
 	if err := json.Unmarshal(raw, &probe); err != nil {
-		return SettingsBundle{}, fmt.Errorf("not a VoiceLoop settings file: %v", err)
+		return SettingsBundle{}, fmt.Errorf("not a voiceloop settings file: %v", err)
 	}
 	if probe.Format == nil || len(probe.Settings) == 0 {
-		return SettingsBundle{}, fmt.Errorf("not a VoiceLoop settings file (exports start with \"voiceloop_settings\")")
+		return SettingsBundle{}, fmt.Errorf("not a voiceloop settings file (exports start with \"voiceloop_settings\")")
 	}
 	if *probe.Format != settingsBundleFormat {
-		return SettingsBundle{}, fmt.Errorf("settings file format %d isn't supported by this VoiceLoop (it reads format %d)", *probe.Format, settingsBundleFormat)
+		return SettingsBundle{}, fmt.Errorf("settings file format %d isn't supported by this voiceloop (it reads format %d)", *probe.Format, settingsBundleFormat)
 	}
 	b := SettingsBundle{Settings: defaultSettings()}
 	if err := json.Unmarshal(raw, &b); err != nil {
