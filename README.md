@@ -4,7 +4,7 @@ VoiceLoop reads Claude Code's replies aloud on your Windows PC, even when Claude
 
 A small hook in Claude Code sends each finished reply to `voiceloop.exe` on your desk PC. VoiceLoop turns the text into speech with [Kokoro](docs/kokoro.md), plays it, and shows a small pill on screen while it talks. Questions and permission prompts get their own chimes, so you can look away while an agent works and still know when it needs you.
 
-![A 3-key macropad with a knob. The keys carry 3D-printed symbols for dictate, slash command and send, and the knob cap has a mute symbol](docs/macropad-with-symbols-1200.jpg)
+![How voiceloop closes the loop: you type or dictate a prompt on your Windows PC, Claude Code works on your server, a hook sends the reply text back to voiceloop.exe on your PC, Kokoro turns it into speech, and you hear it while the pill shows on screen](docs/how-it-works.png)
 
 ## What it does
 
@@ -15,17 +15,20 @@ A small hook in Claude Code sends each finished reply to `voiceloop.exe` on your
 - Reads the last reply again when you type `/resend` (or `/repeat`).
 - Stays quiet while the PC is locked.
 - Ctrl+Alt+V turns voice mode on or off, and Ctrl+Alt+X stops speech.
-- Sets up the macropad pictured above from its Settings panel, with no vendor software. It can also export key symbols as an STL file for 3D printing.
+- Sets up the macropad (see [The macropad](#the-macropad)) from its Settings panel, with no vendor software. It can also export key symbols as an STL file for 3D printing.
 
 ## How it fits together
 
-```
-Claude Code machine          Windows PC                      Any box with Docker
-(Linux, macOS, Windows)      (where you sit)                 (or the Windows PC itself)
+The diagram at the top shows the whole loop:
 
-  voiceloop_hook.py  ──text──▶  voiceloop.exe  ──text──▶  Kokoro
-                               plays the audio  ◀── WAV ──┘
-```
+1. You type a prompt, or dictate it with Handy, in T3 Code or Claude Code on your Windows PC.
+2. The prompt goes to Claude Code on your server, through the T3 server if you use T3 Code.
+3. When Claude finishes a reply, asks a question or needs your approval, Claude Code runs `voiceloop_hook.py` through its hooks (`Stop`, `PreToolUse` for `AskUserQuestion`, and `Notification`).
+4. The hook strips code and markdown and sends the plain text to `voiceloop.exe` on your PC: a `POST /speak` on port 8765 with your token.
+5. `voiceloop.exe` sends the text to Kokoro (`POST /v1/audio/speech`) one sentence chunk at a time and gets WAV audio back.
+6. It plays the audio through your speakers and shows the pill while it talks.
+
+The server never plays anything: Claude Code only sends text, and the speech is made and played at your desk.
 
 All three can be the same Windows PC. VoiceLoop was built for the split case: Claude Code on a headless server, you at a desk, and speech made on whatever box has spare CPU.
 
@@ -45,7 +48,9 @@ Follow [docs/kokoro.md](docs/kokoro.md). In short, run `docker compose up -d` in
 
 1. Download `voiceloop-<version>-windows.zip` from [Releases](https://github.com/Tombo1001/voiceloop/releases) and unzip it.
 2. Right-click `install.ps1`, choose **Run with PowerShell**, and allow it. To let only your Claude Code machine through the firewall, run it from an administrator PowerShell instead: `powershell -ExecutionPolicy Bypass -File install.ps1 -HookFrom 192.168.1.20`.
-3. Settings opens. Under **Voice**, enter Kokoro's address (`http://127.0.0.1:8880` if it runs on this PC), press **Test**, and pick a voice.
+3. Settings opens. Under **Voice**, enter Kokoro's address (`http://127.0.0.1:8880` if it runs on this PC), press **Test connection**, and pick a voice.
+
+   ![The Voice tab in voiceloop's Settings: the Kokoro server address, a successful connection test showing 72 voices, the voice picker set to bf_isabella, speed 1.10x and a Play sample button](docs/settings-voice.png)
 
 The exe isn't code-signed, so Windows SmartScreen may say it "protected your PC". Choose **More info**, then **Run anyway**. Each release lists the exe's SHA256 so you can check the download first.
 
@@ -81,6 +86,8 @@ On the machine that runs Claude Code:
 - **Settings backup.** Settings, **General** exports every setting and the mute list to a file and imports them again. The token is never included.
 
 ## The macropad
+
+![A 3-key macropad with a knob. The keys carry 3D-printed symbols for dictate, slash command and send, and the knob cap has a mute symbol](docs/macropad-with-symbols-1200.jpg)
 
 VoiceLoop was built around a cheap 3-key USB pad with a knob. Its default key map:
 
