@@ -494,6 +494,7 @@ func writeState(w http.ResponseWriter) {
 			"token": cfg.Token,
 			"urls":  hookURLs(cfg.Listen),
 		},
+		"handy": handyState(),
 	})
 }
 

@@ -458,13 +458,13 @@ var actionIcons = map[string]string{
 func (p *PadProfile) MatchSymbols() int {
 	n := 0
 	for _, k := range p.Keys.Key {
-		if ic := actionIcons[p.Action(k.ID)]; ic != "" {
+		if ic := iconFor(p.Action(k.ID)); ic != "" {
 			p.SetSymbol(k.ID, ic)
 			n++
 		}
 	}
 	for _, k := range p.Knobs {
-		if ic := actionIcons[p.Action(k.ID+".press")]; ic != "" {
+		if ic := iconFor(p.Action(k.ID + ".press")); ic != "" {
 			p.SetSymbol(k.ID, ic)
 			n++
 		}

@@ -262,6 +262,8 @@ code { font-family: "Cascadia Mono", Consolas, monospace; font-size: 13px; color
         <div class="pad-wrap"><svg class="pad-svg" id="padsvg" viewBox="0 0 560 230" aria-label="Macropad layout"></svg></div>
         <div class="row"><div class="lbl" id="padstate">Looking for the pad<span class="hint" id="padhint"></span></div>
           <button class="btn primary" id="padupload">Upload to pad</button></div>
+        <div class="row" id="handyrow" style="display:none"><div class="lbl">Handy's shortcut has changed<span class="hint" id="handyhint"></span></div>
+          <button class="btn" id="handyfix">Use Handy's shortcut</button></div>
       </div>
       <h2>What each control does</h2>
       <div class="card" id="padrows"></div>
@@ -334,6 +336,7 @@ function toast(t = "Saved") { const e = $("#toast"); e.textContent = t; e.classL
 
 function fill(state) {
   S = state.settings;
+  setHandy(state.handy);
   $("#voice_on").checked = state.voice_on;
   const mon = $("#monitor"); mon.innerHTML = "";
   state.monitors.forEach(m => mon.add(new Option(`${m.name}${m.primary ? " (main)" : ""} · ${m.width}×${m.height} · ${Math.round(m.scale*100)}%`, m.device)));
@@ -486,6 +489,12 @@ function testKokoro() {
   });
 }
 $("#ktest").addEventListener("click", testKokoro);
+$("#handyfix").addEventListener("click", () => {
+  const binds = staleDictate().map(b => () => api("/api/pad/bind", {Control: b.control, Action: b.action === "ctrl-space" ? HANDY.action : HANDY.action + ",slash"}));
+  binds.reduce((p, f) => p.then(f), Promise.resolve()).then(r => {
+    if (r && r.ok) { padApply(r); drawPadRows(); drawPad(); padDirty = true; padStatusText(); toast("Dictate now uses " + HANDY.shortcut + ". Press Upload."); }
+  });
+});
 
 // Live preview: a CSS copy of the pill in the chosen colours, bars moving like speech.
 let pvKind = "speech", pvName = "Example thread", pvShape = "";
@@ -567,7 +576,23 @@ const PAD_ACTIONS = [
   ["escape", "Esc", "Esc", "careful: Esc can stop Claude mid-reply"],
   ["", "Nothing", "—", ""],
 ];
-let PAD = null, padDirty = false, padFound = false;
+let PAD = null, padDirty = false, padFound = false, HANDY = null;
+// Handy's own shortcut, when it isn't Ctrl+Space, replaces it in the two Dictate actions.
+function setHandy(h) {
+  if (!h || !h.action) return;
+  HANDY = h;
+  PAD_ACTIONS[0][0] = h.action; PAD_ACTIONS[0][3] = "Handy, " + h.shortcut;
+  PAD_ACTIONS[1][0] = h.action + ",slash";
+  if (PAD) { drawPadRows(); drawPad(); handyNote(); }
+}
+// Pads still sending Ctrl+Space for Dictate after Handy's shortcut changed get a one-click fix.
+const staleDictate = () => HANDY && HANDY.action !== "ctrl-space" && PAD
+  ? PAD.mapping.bind.filter(b => b.action === "ctrl-space" || b.action === "ctrl-space,slash") : [];
+function handyNote() {
+  const stale = staleDictate();
+  $("#handyrow").style.display = stale.length ? "" : "none";
+  if (stale.length) $("#handyhint").textContent = `Handy now listens for ${HANDY.shortcut}, but ${stale.length === 1 ? "a control" : stale.length + " controls"} on the pad still send Ctrl+Space.`;
+}
 const padShort = v => { const a = PAD_ACTIONS.find(x => x[0] === v); return a ? a[2] : v; };
 const htmlEsc = t => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const padAction = c => (PAD.mapping.bind.find(b => b.control === c) || {action: ""}).action;
@@ -725,6 +750,7 @@ function padApply(r) {
   padStamp = Date.now();
   PAD = r.profile;
   PAD.knobs = PAD.knobs || []; PAD.lights = PAD.lights || []; PAD.mapping.bind = PAD.mapping.bind || [];
+  setTimeout(handyNote, 0);
   if (r.status) padFound = r.status.found;
   $("#padrev").checked = PAD.mapping.knob_side === "left";
   $("#padrev").closest(".row").style.display = PAD.knobs.length ? "" : "none";

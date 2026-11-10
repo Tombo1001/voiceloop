@@ -7,6 +7,7 @@ VoiceLoop's version is in `listener/version.go`. Each release is tagged `v<versi
 - Any speech server with an OpenAI-style `/v1/audio/speech` endpoint works, not only Kokoro-FastAPI. Settings, Voice has new Model and API key boxes. The connection test tries `/health`, `/v1/models` and `/v1/audio/voices`, and the voice picker becomes a text box when a server doesn't list its voices. Tested with Kokoro-FastAPI and with Speaches running a Piper voice. See `docs/kokoro.md`.
 - Speech audio in any WAV format (stereo, 8 to 32-bit, float, any sample rate) is converted before it plays. Kokoro already sent the one format playback expected.
 - The API key stays on the PC: settings exports leave it out, and importing keeps the one already set.
+- The pad's Dictate actions follow Handy's own shortcut, read from Handy's `settings_store.json`, instead of assuming Ctrl+Space. If the pad still sends Ctrl+Space after Handy's shortcut changes, Settings, Macropad offers a one-click fix. Key symbols follow too.
 
 ## 0.8.1 (2026-11-10)
 

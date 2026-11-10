@@ -111,7 +111,9 @@ Settings, **Macropad** shows a drawing of the pad. Pick an action for each key a
 
 ### Dictation
 
-VoiceLoop doesn't do speech-to-text. [Handy](https://github.com/cjpais/Handy) is a free, local dictation app that pastes what you say into the focused window. Set Handy's shortcut to Ctrl+Space, or change key 1 to whatever shortcut you use. If you send with the pad's Enter key, turn off Handy's auto-submit so you can check the text before it goes. Handy is optional, and any dictation tool that types into the focused window will do.
+VoiceLoop doesn't do speech-to-text. [Handy](https://github.com/cjpais/Handy) (MIT-licensed, [download](https://github.com/cjpais/Handy/releases)) is a free, local dictation app that pastes what you say into the focused window. VoiceLoop reads Handy's shortcut from its settings, so the pad's Dictate actions use whatever you've set (Ctrl+Space by default). If you change Handy's shortcut later, Settings, **Macropad** offers to update the pad. With another dictation tool, pick **Custom keys…** for key 1 and type its shortcut.
+
+If you send with the pad's Enter key, turn Handy's auto-submit off (Handy's **Advanced** settings, **Auto Submit**: Off), so you can check the text before it goes. Handy is optional, and any dictation tool that types into the focused window will do.
 
 ## Compared with VoiceMode
 
