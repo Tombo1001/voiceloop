@@ -1,0 +1,53 @@
+<!doctype html>
+<!-- Source for site/assets/img/og.jpg, the 1200x630 social card. Render it at exactly
+     1200x630 (see tools/og-card/README.md) from a server rooted at the repo, so the
+     ../../site/assets paths resolve. -->
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>voiceloop social card</title>
+<style>
+@font-face { font-family: "Archivo"; src: url(../../site/assets/fonts/archivo.woff2) format("woff2"); font-weight: 100 900; font-stretch: 62% 125%; }
+@font-face { font-family: "VL Wordmark"; src: url(../../site/assets/fonts/vl-wordmark.woff2) format("woff2"); font-weight: 700; }
+@font-face { font-family: "VL Pill"; src: url(../../site/assets/fonts/vl-pill.woff2) format("woff2"); font-weight: 600; }
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: #e6e9ec; }
+.card { position: relative; width: 1200px; height: 630px; overflow: hidden; isolation: isolate; font-family: "Archivo", sans-serif; color: #0a0a0a; }
+.photo { position: absolute; z-index: 1; right: 0; top: 0; width: 600px; height: 630px; object-fit: cover; object-position: 46% 50%; }
+.bar { position: absolute; z-index: 2; left: -40px; height: var(--h); width: var(--w); top: var(--t); background: var(--c); mix-blend-mode: multiply; transform: rotate(-7deg); transform-origin: 0 50%; }
+.copy { position: absolute; z-index: 3; left: 64px; top: 58px; width: 560px; }
+.lockup { display: inline-flex; align-items: center; gap: .37em; padding: .06em .64em .28em .37em; border-radius: 999px; background: #1c1c1e;
+  font: 700 30px/1 "VL Wordmark", sans-serif; letter-spacing: -0.037em; color: #4fd1c5; -webkit-text-stroke: .018em currentColor; }
+.lockup svg { width: 1.41em; height: 1.41em; }
+.lockup span { color: #ececee; }
+h1 { margin: 54px 0 0; font-weight: 900; font-size: 92px; line-height: .9; letter-spacing: -0.03em; word-spacing: .06em; font-stretch: 88%; }
+h1 span { display: block; }
+.pill { position: absolute; z-index: 4; left: 900px; bottom: 54px; transform: translateX(-50%) scale(1.25); display: flex; flex-direction: column; width: max-content; height: 86px; padding: 0 12px 0 18px; border-radius: 24px;
+  background: rgba(42, 42, 44, .95); box-shadow: 0 14px 30px rgba(0, 0, 0, .32); font-family: "VL Pill", sans-serif; }
+.r1 { display: flex; align-items: center; height: 54px; gap: 12px; }
+.dot { width: 12px; height: 12px; border-radius: 50%; background: #4fd1c5; }
+.name { color: #f0f0f2; font-weight: 600; font-size: 14.5px; }
+.chip { height: 26px; padding: 0 11px; border-radius: 99px; background: rgba(255, 255, 255, .11); color: #c8c8cc; font: 600 12px/26px "VL Pill", sans-serif; }
+.x { width: 30px; height: 30px; border-radius: 50%; background: rgba(255, 255, 255, .11); display: grid; place-items: center; color: #d0d0d4; }
+.x svg { width: 11px; height: 11px; }
+.pb { display: flex; gap: 8.5px; align-items: center; justify-content: center; height: 28px; margin-top: -6px; }
+.pb i { width: 4.5px; border-radius: 9px; background: #4fd1c5; }
+.url { position: absolute; z-index: 3; left: 64px; bottom: 48px; font-weight: 800; font-size: 24px; letter-spacing: -0.01em; }
+</style>
+</head>
+<body>
+<div class="card">
+  <img class="photo" src="../../site/assets/img/pad-1200.jpg" alt="">
+  <i class="bar" style="--c:#4fd1c5;--w:860px;--h:46px;--t:178px"></i>
+  <i class="bar" style="--c:#24a0ff;--w:1300px;--h:30px;--t:352px"></i>
+  <i class="bar" style="--c:#e8bf2c;--w:420px;--h:38px;--t:92px;left:836px"></i>
+  <div class="copy">
+    <div class="lockup"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="49.5" fill="#1d1d1f"/><path d="M24 36 39.5 68 55 36" fill="none" stroke="#4fd1c5" stroke-width="11.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M71.5 27V68" fill="none" stroke="#f2f2f4" stroke-width="11.5" stroke-linecap="round"/></svg><b>voice<span>loop</span></b></div>
+    <h1><span>Your agent</span><span>is done.</span><span>Look up.</span></h1>
+  </div>
+  <div class="url">voiceloop.dev</div>
+  <div class="pill"><div class="r1"><span class="dot"></span><span class="name">voiceloop is talking</span><span class="chip">Mute thread</span><span class="x"><svg viewBox="0 0 12 12"><path d="M2 2l8 8M10 2l-8 8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span></div>
+    <div class="pb"><i style="height:6px"></i><i style="height:14px"></i><i style="height:22px"></i><i style="height:12px"></i><i style="height:24px"></i><i style="height:16px"></i><i style="height:9px"></i><i style="height:18px"></i><i style="height:6px"></i></div></div>
+</div>
+</body>
+</html>
