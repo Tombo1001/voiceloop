@@ -1,0 +1,183 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-10T18:30:00Z",
+  "title": "Design System: voiceloop.dev",
+  "extensions": {
+    "colorMeta": {
+      "ink": {
+        "role": "primary",
+        "displayName": "Ink",
+        "canonical": "#0a0a0a"
+      },
+      "speech-teal": {
+        "role": "secondary",
+        "displayName": "Speech Teal",
+        "canonical": "#4fd1c5"
+      },
+      "question-blue": {
+        "role": "tertiary",
+        "displayName": "Question Blue",
+        "canonical": "#24a0ff"
+      },
+      "approval-yellow": {
+        "role": "tertiary",
+        "displayName": "Approval Yellow",
+        "canonical": "#e8bf2c"
+      },
+      "ground-grey": {
+        "role": "neutral",
+        "displayName": "Ground Grey",
+        "canonical": "#e6e9ec"
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "#ffffff"
+      },
+      "plate": {
+        "role": "neutral",
+        "displayName": "Plate (the app's dark surface)",
+        "canonical": "#1c1c1e"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The hero headline only."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section headings, each crossed by one bar."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Small uppercase labels inside components; never above a heading."
+      },
+      "mono": {
+        "displayName": "Mono",
+        "purpose": "Commands, paths, ports and keys only."
+      }
+    },
+    "shadows": [
+      {
+        "name": "pill",
+        "value": "0 14px 30px rgba(0,0,0,.32)",
+        "purpose": "The speech pill floating over the page, as over a desktop."
+      },
+      {
+        "name": "pin",
+        "value": "0 6px 14px rgba(0,0,0,.3)",
+        "purpose": "Numbered pins on the pad photo."
+      },
+      {
+        "name": "lit",
+        "value": "inset 0 -8px 0 var(--c)",
+        "purpose": "An active tile: an 8px bar in its event colour along the bottom edge."
+      }
+    ],
+    "motion": [
+      {
+        "name": "bar-level",
+        "value": "transform .09s linear",
+        "purpose": "Hero bars scale with the live speech level."
+      },
+      {
+        "name": "snap",
+        "value": "cubic-bezier(.2, .8, .2, 1)",
+        "purpose": "Marks, nodes and pins settling into place (.2 to .6s)."
+      },
+      {
+        "name": "hover",
+        "value": ".15s",
+        "purpose": "Background and colour changes on buttons, nav and tiles."
+      },
+      {
+        "name": "reduced",
+        "value": "transition: none",
+        "purpose": "prefers-reduced-motion turns all of the above off."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "single-column",
+        "value": "900px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The main action: an ink block with a sub-line and an arrow cell that turns teal on hover.",
+      "html": "<a class=\"ds-do\" href=\"#\"><span>Download for Windows<small>v0.8.1 · free and open source</small></span><i>→</i></a>",
+      "css": ".ds-do{display:inline-flex;align-items:stretch;text-decoration:none;background:#0a0a0a;color:#fff;font-family:Archivo,system-ui,sans-serif}.ds-do span{padding:18px 24px;font-weight:800;font-size:16px;letter-spacing:.08em;text-transform:uppercase;line-height:1.1}.ds-do small{display:block;margin-top:4px;font-weight:500;letter-spacing:.02em;text-transform:none;font-size:14px;color:#c9cdd1}.ds-do i{width:62px;display:grid;place-items:center;border-left:1px solid #ffffff33;font-style:normal;font-size:22px;transition:background .15s}.ds-do:hover i{background:#4fd1c5;color:#0a0a0a}"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary action: a 2px ink outline that fills ink on hover.",
+      "html": "<a class=\"ds-ghost\" href=\"#\">How it works</a>",
+      "css": ".ds-ghost{display:inline-flex;align-items:center;min-height:52px;padding:0 18px;border:2px solid #0a0a0a;text-decoration:none;color:#0a0a0a;font:800 14px/1 Archivo,system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;background:#e6e9ec}.ds-ghost:hover{background:#0a0a0a;color:#fff}"
+    },
+    {
+      "name": "Code Chip Row",
+      "kind": "custom",
+      "refersTo": "code-chip",
+      "description": "A row in the Security list: an ink code chip and a label, then the explanation.",
+      "html": "<div class=\"ds-row\"><span><code>:8765</code><b>The app</b></span><p>Takes replies from the hook, and every request needs the token.</p></div>",
+      "css": ".ds-row{display:grid;grid-template-columns:220px 1fr;gap:24px;padding:18px 22px;background:#fff;font:400 17px/1.5 Archivo,system-ui,sans-serif;color:#3d4045}.ds-row span{display:flex;gap:12px;align-items:baseline}.ds-row code{padding:5px 8px;background:#0a0a0a;color:#fff;font:600 14px/1 ui-monospace,monospace}.ds-row b{font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#0a0a0a}.ds-row p{margin:0}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The speech meter, blown up",
+    "overview": "The pill's speech bars, made huge and flat and laid across the headings and the pad photo at -7 degrees, over a modular grid of hard ink blocks on a cool grey ground. Loud, flat and Swiss, and light because people read it at a desk in daylight. The page proves the product by sound: real Kokoro speech drives the bars, and nothing plays until the visitor presses a voice.",
+    "keyCharacteristics": [
+      "Cool grey, ink and white with three event colours",
+      "Flat bars at -7 degrees, multiplied",
+      "Tiles on 2px seams",
+      "Archivo 900 at 88% width for headings",
+      "The app's lockup and pill, exact"
+    ],
+    "rules": [
+      {
+        "name": "Three colours, three meanings",
+        "body": "Teal is speech, blue is a question, yellow is an approval. No other saturated colour.",
+        "section": "colors"
+      },
+      {
+        "name": "One bar per heading",
+        "body": "Two multiplied bars crossing behind text make a near-black band.",
+        "section": "colors"
+      },
+      {
+        "name": "Lowercase voiceloop",
+        "body": "Always lowercase, bold in running text.",
+        "section": "typography"
+      },
+      {
+        "name": "Mono is for things you type",
+        "body": "Monospace only for commands, paths, ports and keys.",
+        "section": "typography"
+      },
+      {
+        "name": "Flat, with two real shadows",
+        "body": "Only the speech pill and the photo pins cast shadows.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Make anything about voice playable, never autoplayed",
+      "Put one bar on each new section heading",
+      "Build groups as tiles on a 2px seam",
+      "Show the real pad, pill, speech and commands"
+    ],
+    "donts": [
+      "Don't add a fourth hue, gradients, glass or glow",
+      "Don't put a label above a heading",
+      "Don't round, border or shadow the blocks",
+      "Don't recolour the lockup or write VoiceLoop in copy"
+    ]
+  }
+}

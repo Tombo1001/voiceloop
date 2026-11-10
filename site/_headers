@@ -1,0 +1,6 @@
+# Cloudflare Pages response headers.
+# The pad-profile schema and profile are XML, so browsers and editors can read them in place.
+/pad-profile/1/*.xsd
+  Content-Type: application/xml; charset=utf-8
+/pad-profile/1/*.xml
+  Content-Type: application/xml; charset=utf-8

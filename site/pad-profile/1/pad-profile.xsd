@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  VoiceLoop pad profile, version 1.
+
+  A profile describes one model of macropad (how to find it on USB, which
+  protocol it speaks, its keys, knobs and light modes) plus the user's key map.
+  VoiceLoop imports and exports these from Settings > Macropad.
+
+  To add a pad: copy a published profile, change usb/keys/knobs/lights to match
+  your pad, and keep <protocol> to one VoiceLoop knows. Known protocols:
+    ch57x-8890   CH57x pads with USB product ID 0x8890 (ported from ch57x-keyboard-tool)
+  A pad that needs a new protocol needs code in VoiceLoop as well.
+
+  Action syntax (bind/@action):
+    ""                      nothing
+    "enter", "f13", "a"     one key
+    "ctrl-alt-x"            modifiers (ctrl, shift, alt, win, rctrl, rshift, ralt, rwin) then the key
+    "ctrl-space,slash"      a sequence, comma-separated, at most limits/@maxSequence presses
+    "volumeup", "volumedown", "mute", "play", "next", "previous", "stop"   media keys, on their own
+  Key names follow ch57x-keyboard-tool: a-z, 0-9, f1-f24, enter, escape, backspace, tab,
+  space, minus, equal, leftbracket, rightbracket, backslash, semicolon, quote, grave,
+  comma, dot, slash, capslock, printscreen, scrolllock, pause, insert, home, pageup,
+  delete, end, pagedown, left, right, up, down.
+
+  Control names (bind/@control): a key's id, or a knob's id followed by .left, .press or .right.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="https://voiceloop.dev/pad-profile/1"
+           targetNamespace="https://voiceloop.dev/pad-profile/1"
+           elementFormDefault="qualified">
+
+  <xs:simpleType name="hex16">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="0x[0-9A-Fa-f]{1,4}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="code">
+    <xs:restriction base="xs:unsignedByte">
+      <xs:minInclusive value="1"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="id">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[a-z][a-z0-9_]{0,31}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:element name="padProfile">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="name" type="xs:string"/>
+        <xs:element name="description" type="xs:string" minOccurs="0"/>
+        <xs:element name="link" type="xs:anyURI" minOccurs="0"/>
+        <xs:element name="usb">
+          <xs:complexType>
+            <xs:attribute name="vendorId" type="hex16" use="required"/>
+            <xs:attribute name="productId" type="hex16" use="required"/>
+            <xs:attribute name="usagePage" type="hex16" use="required"/>
+            <xs:attribute name="reportLength" type="xs:positiveInteger" use="required"/>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="protocol">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="ch57x-8890"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+        <xs:element name="limits">
+          <xs:complexType>
+            <xs:attribute name="maxSequence" type="xs:positiveInteger" use="required"/>
+            <xs:attribute name="modifiersOnFirstKeyOnly" type="xs:boolean" default="false"/>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="keys">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="key" maxOccurs="64">
+                <xs:complexType>
+                  <xs:attribute name="id" type="id" use="required"/>
+                  <xs:attribute name="code" type="code" use="required"/>
+                  <xs:attribute name="label" type="xs:string"/>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute name="rows" type="xs:positiveInteger" use="required"/>
+            <xs:attribute name="columns" type="xs:positiveInteger" use="required"/>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="knobs" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="knob" maxOccurs="8">
+                <xs:complexType>
+                  <xs:attribute name="id" type="id" use="required"/>
+                  <xs:attribute name="turnLeft" type="code" use="required"/>
+                  <xs:attribute name="press" type="code" use="required"/>
+                  <xs:attribute name="turnRight" type="code" use="required"/>
+                  <xs:attribute name="label" type="xs:string"/>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="lights" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="mode" maxOccurs="32">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                      <xs:attribute name="value" type="xs:unsignedByte" use="required"/>
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="mapping">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="bind" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:attribute name="control" type="xs:string" use="required"/>
+                  <xs:attribute name="action" type="xs:string" use="required"/>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute name="knobSide" default="right">
+              <xs:simpleType>
+                <xs:restriction base="xs:string">
+                  <xs:enumeration value="right"/>
+                  <xs:enumeration value="left"/>
+                </xs:restriction>
+              </xs:simpleType>
+            </xs:attribute>
+            <xs:attribute name="lights" type="xs:unsignedByte" default="0"/>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="symbols" minOccurs="0">
+          <xs:annotation><xs:documentation>
+            Flat symbols to 3D print and glue onto the keys and knob caps. Each icon (a PNG or
+            JPEG in VoiceLoop's icons folder: dark or opaque artwork) is scaled to fit size mm,
+            square or round (knob caps are always round), and printed layers x layerHeight thick.
+          </xs:documentation></xs:annotation>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="symbol" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:attribute name="control" type="id" use="required"/>
+                  <xs:attribute name="icon" use="required">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:pattern value="[^\\/:*?&quot;&lt;&gt;|.][^\\/:*?&quot;&lt;&gt;|]*\.([Pp][Nn][Gg]|[Jj][Pp][Ee]?[Gg])"/>
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:attribute>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute name="shape" default="square">
+              <xs:simpleType>
+                <xs:restriction base="xs:string">
+                  <xs:enumeration value="square"/>
+                  <xs:enumeration value="round"/>
+                </xs:restriction>
+              </xs:simpleType>
+            </xs:attribute>
+            <xs:attribute name="size" use="required">
+              <xs:simpleType><xs:restriction base="xs:decimal"><xs:minInclusive value="3"/><xs:maxInclusive value="60"/></xs:restriction></xs:simpleType>
+            </xs:attribute>
+            <xs:attribute name="layers" use="required">
+              <xs:simpleType><xs:restriction base="xs:positiveInteger"><xs:maxInclusive value="20"/></xs:restriction></xs:simpleType>
+            </xs:attribute>
+            <xs:attribute name="layerHeight" use="required">
+              <xs:simpleType><xs:restriction base="xs:decimal"><xs:minInclusive value="0.04"/><xs:maxInclusive value="0.6"/></xs:restriction></xs:simpleType>
+            </xs:attribute>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="version" type="xs:positiveInteger" use="required"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

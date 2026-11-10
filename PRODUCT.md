@@ -32,7 +32,7 @@ Three parts: a Python hook on the Claude Code machine, `voiceloop.exe` on the Wi
 - The listener is Windows only (tested on Windows 11). The hook needs Python 3.8+. Kokoro-FastAPI is the only tested speech server.
 - Open source, MIT. Free. A paid tier may come later; never imply one exists.
 - The release is unsigned, so SmartScreen warns on first run.
-- Undecided: demo video, analytics (Cloudflare Web Analytics likely).
+- Analytics: Cloudflare Web Analytics, cookieless, on since 2026-11-10. Still undecided: a demo video.
 
 ## Brand Commitments
 

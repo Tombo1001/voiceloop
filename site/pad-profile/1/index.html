@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>voiceloop pad profiles</title>
+<meta name="description" content="https://voiceloop.dev/pad-profile/1 is the XML namespace for voiceloop pad profiles. The schema, the built-in profile, and how to make a profile for your own macropad.">
+<link rel="canonical" href="https://voiceloop.dev/pad-profile/1/">
+<meta name="theme-color" content="#e6e9ec">
+<link rel="icon" type="image/svg+xml" href="../../assets/img/favicon.svg">
+<link rel="preload" href="../../assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../assets/site.css">
+</head>
+<body class="doc">
+<header class="top">
+  <a class="lockup on-plate" href="../../" aria-label="voiceloop home"><svg class="vl-mark" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="49.5" fill="#1d1d1f"/><path d="M24 36 39.5 68 55 36" fill="none" stroke="#4fd1c5" stroke-width="11.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M71.5 27V68" fill="none" stroke="#f2f2f4" stroke-width="11.5" stroke-linecap="round"/></svg><b class="vl-word">voice<span>loop</span></b></a>
+  <nav aria-label="Main">
+    <a href="../../#pad" style="--hc:var(--approval)"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M2 7.5h12a2 2 0 0 1 2 2v3.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V9.5a2 2 0 0 1 2-2Zm0 1.5a.5.5 0 0 0-.5.5v3.5a.5.5 0 0 0 .5.5h12a.5.5 0 0 0 .5-.5V9.5A.5.5 0 0 0 14 9Z"/><rect x="2.5" y="10" width="2.5" height="2.5" rx=".5"/><rect x="5.75" y="10" width="2.5" height="2.5" rx=".5"/><rect x="9" y="10" width="2.5" height="2.5" rx=".5"/><circle cx="12.75" cy="4.25" r="3"/></svg>The pad</a>
+    <a href="https://github.com/Tombo1001/voiceloop"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg>GitHub</a>
+  </nav>
+</header>
+
+<main class="doc-main">
+  <section class="doc-head" aria-labelledby="doc-h">
+    <div class="wrap">
+      <h1 class="barred" id="doc-h"><i class="hbar" aria-hidden="true" style="--c:var(--approval);--w:40vw;--h:46px"></i>Pad profiles</h1>
+      <p class="lead"><code class="ns">https://voiceloop.dev/pad-profile/1</code> is the XML namespace for <b>voiceloop</b> pad profiles. A profile describes one macropad model: its USB IDs, keys, knobs, light modes and key map. <b>voiceloop</b> reads it to draw the pad in Settings and to program it.</p>
+      <ul class="files">
+        <li><a href="pad-profile.xsd"><b>pad-profile.xsd</b><span>The schema. Every element and attribute, with notes.</span></a></li>
+        <li><a href="ch57x-3key-knob.xml"><b>ch57x-3key-knob.xml</b><span>The built-in profile: 3 keys and a knob, USB 1189:8890.</span></a></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="doc-body" aria-labelledby="make-h">
+    <div class="wrap">
+      <h2 id="make-h">Make a profile for your pad</h2>
+      <ol class="doc-steps">
+        <li><b>Find the pad's USB ID.</b> In Windows, open Device Manager, find the pad under Human Interface Devices or Keyboards, and open Properties, Details, Hardware Ids. It looks like <code>VID_1189&amp;PID_8890</code>.</li>
+        <li><b>Export the current profile.</b> In <b>voiceloop</b>, open Settings, Macropad, and under Pad profile press Export…. You get an XML file to edit.</li>
+        <li><b>Edit it to match your pad.</b> Change the name, the <code>vendorId</code> and <code>productId</code> on <code>&lt;usb&gt;</code>, the keys and knobs it has, and their codes. The schema above explains each one.</li>
+        <li><b>Import it.</b> Back in Settings, Macropad, press Import…. <b>voiceloop</b> saves the profile it replaces first, dated, in the pad-profiles folder. Start again puts the built-in pad back.</li>
+        <li><b>Upload a key map and try every control.</b> If a key does the wrong thing, check its code in the profile.</li>
+      </ol>
+      <div class="doc-note">
+        <h3>One protocol so far</h3>
+        <p>A profile only describes the pad. The bytes that program it come from a built-in encoder, and <b>voiceloop</b> has one: <code>ch57x-8890</code>, for CH57x pads with USB ID <code>1189:8890</code>. If your pad uses another protocol, a profile can't fix that yet. <a href="https://github.com/Tombo1001/voiceloop/issues/new?template=pad-support.yml">Open an issue</a> with its USB ID and an exported profile.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <a class="lockup on-plate" href="../../" aria-label="voiceloop home"><svg class="vl-mark" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="49.5" fill="#1d1d1f"/><path d="M24 36 39.5 68 55 36" fill="none" stroke="#4fd1c5" stroke-width="11.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M71.5 27V68" fill="none" stroke="#f2f2f4" stroke-width="11.5" stroke-linecap="round"/></svg><b class="vl-word">voice<span>loop</span></b></a>
+    <div>
+      <p><b>voiceloop</b> is free and open source under the MIT licence. It isn't made by or affiliated with Anthropic.</p>
+      <p>The CH57x protocol is ported from ch57x-keyboard-tool by kriomant (MIT or Apache-2.0).</p>
+    </div>
+    <nav aria-label="Footer"><a href="../../">Home</a><a href="https://github.com/Tombo1001/voiceloop">GitHub</a><a href="https://github.com/Tombo1001/voiceloop/releases">Releases</a></nav>
+  </div>
+</footer>
+</body>
+</html>
