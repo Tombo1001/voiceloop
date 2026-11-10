@@ -42,9 +42,9 @@ h2:first-child { margin-top: 0; }
 .ctl { display: flex; align-items: center; gap: 10px; flex: none; }
 input[type=number].num { width: 96px; min-width: 0; text-align: right; font-variant-numeric: tabular-nums; }
 .unit { color: var(--muted); font-size: 13.5px; }
-select, input[type=text], input[type=number] { background: #232325; color: var(--text); border: 1px solid #4a4a4e; border-radius: 8px;
+select, input[type=text], input[type=password], input[type=number] { background: #232325; color: var(--text); border: 1px solid #4a4a4e; border-radius: 8px;
   padding: 7px 10px; font: inherit; min-width: 250px; }
-select:focus, input[type=text]:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+select:focus, input[type=text]:focus, input[type=password]:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
 .btn { all: unset; cursor: pointer; padding: 7px 13px; border: 1px solid #4a4a4e; border-radius: 8px; font-weight: 600; background: #232325; white-space: nowrap; }
 .btn:hover { border-color: var(--accent); }
 .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
@@ -484,7 +484,7 @@ function testKokoro() {
   return api("/api/test-speech", {URL: url, Model: $("#ttsmodel").value, Key: $("#ttskey").value, Voice: S.voice}).then(r => {
     if (r.ok) {
       voices = r.voices || []; tested = true; fillVoices();
-      setStatus(true, `Connected in ${r.ms} ms · ` + (voices.length ? `${voices.length} voices` : "no voice list"));
+      setStatus(true, `Connected in ${r.ms} ms · ` + (voices.length ? `${voices.length} voice${voices.length === 1 ? "" : "s"}` : "no voice list"));
     } else setStatus(false, r.error);
   });
 }
@@ -583,6 +583,9 @@ function setHandy(h) {
   HANDY = h;
   PAD_ACTIONS[0][0] = h.action; PAD_ACTIONS[0][3] = "Handy, " + h.shortcut;
   PAD_ACTIONS[1][0] = h.action + ",slash";
+  if (h.action !== "ctrl-space" && !PAD_ACTIONS.some(a => a[0] === "ctrl-space")) // name the old binding, not "Custom keys"
+    PAD_ACTIONS.splice(2, 0, ["ctrl-space", "Ctrl+Space (Handy's old shortcut)", "Ctrl+Space", ""],
+      ["ctrl-space,slash", "Ctrl+Space, then / (Handy's old shortcut)", "Ctrl+Space /", ""]);
   if (PAD) { drawPadRows(); drawPad(); handyNote(); }
 }
 // Pads still sending Ctrl+Space for Dictate after Handy's shortcut changed get a one-click fix.
@@ -619,8 +622,10 @@ function drawPad(sel = "#padsvg", mode = "actions") {
   const gridW = cols * ks + (cols - 1) * gap, gridH = rows * ks + (rows - 1) * gap;
   const knobW = knobs.length ? kr * 2 + 40 : 0;
   const bodyW = gridW + knobW + 60, bodyH = Math.max(gridH, knobs.length ? knobs.length * (kr * 2 + 14) : 0) + 50;
-  const W = Math.max(bodyW + 20, 300), H = bodyH + (!sym && knobs.length === 1 ? 70 : 40); // room for the turn labels
-  const bx = (W - bodyW) / 2, by = 20;
+  // Turn labels: under a single knob, or beside each knob, outside the body, when there are several.
+  const sideLabels = !sym && knobs.length > 1, labelW = sideLabels ? 140 : 0;
+  const W = Math.max(bodyW + 20 + labelW, 300), H = bodyH + (!sym && knobs.length === 1 ? 70 : 40);
+  const bx = (W - labelW - bodyW) / 2 + (left ? labelW : 0), by = 20;
   const gx = left ? bx + 30 + knobW : bx + 30, gy = by + (bodyH - gridH) / 2;
   const kx = left ? bx + 30 + kr : bx + 30 + gridW + 40 + kr;
   const stamp = padStamp;
@@ -642,6 +647,11 @@ function drawPad(sel = "#padsvg", mode = "actions") {
     if (!sym && knobs.length === 1) {
       g += `<g class="ctl" data-c="${k.id}.left"><text class="act" x="${kx - 10}" y="${by + bodyH + 32}" text-anchor="end">↺ ${htmlEsc(padShort(padAction(k.id + ".left")))}</text></g>`;
       g += `<g class="ctl" data-c="${k.id}.right"><text class="act" x="${kx + 10}" y="${by + bodyH + 32}">${htmlEsc(padShort(padAction(k.id + ".right")))} ↻</text></g>`;
+    } else if (sideLabels) {
+      const lx = left ? bx - 12 : bx + bodyW + 12, anchor = left ? "end" : "start";
+      g += `<line x1="${left ? bx : bx + bodyW}" y1="${cy}" x2="${left ? kx - kr - 4 : kx + kr + 4}" y2="${cy}" stroke="#47474c" stroke-dasharray="3 4"/>`;
+      g += `<g class="ctl" data-c="${k.id}.left"><text class="act" x="${lx}" y="${cy - 5}" text-anchor="${anchor}">↺ ${htmlEsc(padShort(padAction(k.id + ".left")))}</text></g>`;
+      g += `<g class="ctl" data-c="${k.id}.right"><text class="act" x="${lx}" y="${cy + 15}" text-anchor="${anchor}">↻ ${htmlEsc(padShort(padAction(k.id + ".right")))}</text></g>`;
     }
   });
   PAD.keys.list.forEach((k, i) => {

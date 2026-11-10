@@ -9,6 +9,7 @@ VoiceLoop's version is in `listener/version.go`. Each release is tagged `v<versi
 - The API key stays on the PC: settings exports leave it out, and importing keeps the one already set.
 - The pad's Dictate actions follow Handy's own shortcut, read from Handy's `settings_store.json`, instead of assuming Ctrl+Space. If the pad still sends Ctrl+Space after Handy's shortcut changes, Settings, Macropad offers a one-click fix. Key symbols follow too.
 - Exported pad profiles carry custom key icons (any that aren't built in) as base64 inside each `<symbol>`, and import saves them to the icons folder. A different picture with the same name is saved as `name-2.png`, so nothing is overwritten. `pad-profile.xsd` allows the icon data, and older profiles still load.
+- The Macropad drawing labels knob turns for pads with more than one knob, beside each knob. Only single-knob pads had them.
 
 ## 0.8.1 (2026-11-10)
 
