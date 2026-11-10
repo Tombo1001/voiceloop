@@ -4,7 +4,7 @@ VoiceLoop reads Claude Code's replies aloud on your Windows PC, even when Claude
 
 A small hook in Claude Code sends each finished reply to `voiceloop.exe` on your desk PC. VoiceLoop turns the text into speech with [Kokoro](docs/kokoro.md), plays it, and shows a small pill on screen while it talks. Questions and permission prompts get their own chimes, so you can look away while an agent works and still know when it needs you.
 
-![How voiceloop closes the loop: you type or dictate a prompt on your Windows PC, Claude Code works on your server, a hook sends the reply text back to voiceloop.exe on your PC, Kokoro turns it into speech, and you hear it while the pill shows on screen](docs/how-it-works.png)
+![How voiceloop works: you type or dictate a prompt on your Windows PC, Claude Code works on your server, a hook sends the reply text back to voiceloop.exe on your PC, Kokoro turns it into speech, and you hear it while the pill shows on screen](docs/how-it-works.png)
 
 ## What it does
 
