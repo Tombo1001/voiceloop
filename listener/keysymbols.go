@@ -10,6 +10,7 @@ package main
 import (
 	"bytes"
 	"embed"
+	"encoding/base64"
 	"encoding/binary"
 	"fmt"
 	"image"
@@ -40,7 +41,12 @@ type PadSymbols struct {
 type PadSymbol struct {
 	Control string `xml:"control,attr" json:"control"` // a key id, or a knob id for its cap
 	Icon    string `xml:"icon,attr" json:"icon"`       // file name in the icons folder
+	// Data is the icon itself, base64, in exported profiles only, for icons that aren't built
+	// in. Import writes it to the icons folder and clears it.
+	Data string `xml:",chardata" json:"-"`
 }
+
+const maxEmbeddedIcon = 1 << 20 // bytes, per icon
 
 func defaultSymbols() *PadSymbols {
 	return &PadSymbols{Shape: "square", Size: 9, Layers: 2, LayerHeight: 0.2}
@@ -77,6 +83,18 @@ func (s *PadSymbols) check(p *PadProfile) error {
 		seen[x.Control] = true
 		if !safeIconName(x.Icon) {
 			return fmt.Errorf("<symbol icon=%q> should be a file name in the icons folder, like dictate.png", x.Icon)
+		}
+		if strings.TrimSpace(x.Data) != "" {
+			b, err := base64.StdEncoding.DecodeString(stripSpace(x.Data))
+			if err != nil {
+				return fmt.Errorf("the icon inside <symbol icon=%q> isn't valid base64", x.Icon)
+			}
+			if len(b) > maxEmbeddedIcon {
+				return fmt.Errorf("the icon inside <symbol icon=%q> is over 1 MB", x.Icon)
+			}
+			if _, err := iconMask(b); err != nil {
+				return fmt.Errorf("the icon inside <symbol icon=%q>: %v", x.Icon, err)
+			}
 		}
 	}
 	return nil
@@ -129,7 +147,7 @@ func (p *PadProfile) SetSymbol(control, icon string) {
 	p.Symbols.Symbol = nil
 	for _, c := range p.symbolControls() {
 		if m[c] != "" {
-			p.Symbols.Symbol = append(p.Symbols.Symbol, PadSymbol{c, m[c]})
+			p.Symbols.Symbol = append(p.Symbols.Symbol, PadSymbol{Control: c, Icon: m[c]})
 		}
 	}
 }
@@ -339,6 +357,90 @@ func installIcons(dir string) error {
 		}
 	}
 	return nil
+}
+
+func stripSpace(s string) string {
+	return strings.Map(func(r rune) rune {
+		if r == ' ' || r == '\n' || r == '\r' || r == '\t' {
+			return -1
+		}
+		return r
+	}, s)
+}
+
+// embedIcons puts each custom icon into the profile, so an exported profile carries its
+// symbols to another PC. Built-in icons stay as names, unless the icons folder holds a
+// different file under a built-in's name.
+func (p *PadProfile) embedIcons(dir string) {
+	if p.Symbols == nil {
+		return
+	}
+	for i := range p.Symbols.Symbol {
+		x := &p.Symbols.Symbol[i]
+		x.Data = ""
+		b, err := os.ReadFile(filepath.Join(dir, x.Icon))
+		if err != nil || len(b) > maxEmbeddedIcon {
+			continue // a built-in, or missing: the name is all there is
+		}
+		if bi, err := builtinIcons.ReadFile("icons/" + x.Icon); err == nil && bytes.Equal(bi, b) {
+			continue
+		}
+		x.Data = base64.StdEncoding.EncodeToString(b)
+	}
+}
+
+// adoptEmbeddedIcons writes icons carried in an imported profile to the icons folder and
+// clears them from the profile. A file already there under the same name is reused when
+// it's identical; otherwise the icon is saved as name-2.png (or -3...) and renamed in the
+// profile. It returns how many icons it wrote.
+func (p *PadProfile) adoptEmbeddedIcons(dir string) (int, error) {
+	if p.Symbols == nil {
+		return 0, nil
+	}
+	n := 0
+	for i := range p.Symbols.Symbol {
+		x := &p.Symbols.Symbol[i]
+		data := stripSpace(x.Data)
+		x.Data = ""
+		if data == "" {
+			continue
+		}
+		b, err := base64.StdEncoding.DecodeString(data)
+		if err != nil {
+			return n, err
+		}
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			return n, err
+		}
+		ext := filepath.Ext(x.Icon)
+		stem := strings.TrimSuffix(x.Icon, ext)
+		for k := 1; ; k++ {
+			name := x.Icon
+			if k > 1 {
+				name = fmt.Sprintf("%s-%d%s", stem, k, ext)
+			}
+			old, err := os.ReadFile(filepath.Join(dir, name))
+			if err != nil && !os.IsNotExist(err) {
+				return n, err
+			}
+			if err == nil && bytes.Equal(old, b) {
+				x.Icon = name
+				break
+			}
+			if os.IsNotExist(err) {
+				if bi, err := builtinIcons.ReadFile("icons/" + name); err == nil && !bytes.Equal(bi, b) {
+					continue // don't shadow a built-in with a different picture
+				}
+				if err := os.WriteFile(filepath.Join(dir, name), b, 0o644); err != nil {
+					return n, err
+				}
+				x.Icon = name
+				n++
+				break
+			}
+		}
+	}
+	return n, nil
 }
 
 // readIcon loads an icon by name: the icons folder first, then the built-ins.

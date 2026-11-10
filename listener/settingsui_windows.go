@@ -268,7 +268,13 @@ func settingsServer() {
 			json.NewEncoder(w).Encode(map[string]any{"ok": false, "cancelled": true})
 			return
 		}
-		if err := os.WriteFile(path, p.Marshal(), 0o644); err != nil {
+		out, err := ParsePadProfile(p.Marshal()) // a copy, so the icons go into the file only
+		if err != nil {
+			padErr(w, err)
+			return
+		}
+		out.embedIcons(iconsDir())
+		if err := os.WriteFile(path, out.Marshal(), 0o644); err != nil {
 			padErr(w, fmt.Errorf("couldn't save the pad profile: %v", err))
 			return
 		}
@@ -387,11 +393,17 @@ func settingsServer() {
 			http.Error(w, "post only", http.StatusMethodNotAllowed)
 			return
 		}
-		b, _ := io.ReadAll(io.LimitReader(r.Body, 256<<10))
+		b, _ := io.ReadAll(io.LimitReader(r.Body, 16<<20)) // room for a few embedded icons
 		p, err := ParsePadProfile(b)
 		if err != nil {
 			padErr(w, err)
 			return
+		}
+		if n, err := p.adoptEmbeddedIcons(iconsDir()); err != nil {
+			padErr(w, fmt.Errorf("couldn't save the profile's icons: %v", err))
+			return
+		} else if n > 0 {
+			log.Printf("macropad: saved %d icon(s) from the imported profile", n)
 		}
 		backup, err := pads.replace(p, "import")
 		if err != nil {

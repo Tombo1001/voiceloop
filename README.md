@@ -107,7 +107,7 @@ Settings, **Macropad** shows a drawing of the pad. Pick an action for each key a
 
 **Key symbols.** The same tab makes flat symbols to print and glue onto the keys. Pick an icon for each key (starter icons are included), then **Export STL…**. They printed cleanly at 9 mm with two 0.2 mm layers of PLA.
 
-**Pad profiles.** Each pad model is described by an XML pad profile: its USB IDs, keys, knobs, light modes and key map. The schema is [`listener/pads/pad-profile.xsd`](listener/pads/pad-profile.xsd) and the built-in profile is [`listener/pads/ch57x-3key-knob.xml`](listener/pads/ch57x-3key-knob.xml). To support another CH57x pad that speaks the same protocol, export the profile, edit the IDs and codes, and import it. VoiceLoop only speaks the `ch57x-8890` protocol so far. If your pad uses another, [open an issue](https://github.com/Tombo1001/voiceloop/issues/new?template=pad-support.yml).
+**Pad profiles.** Each pad model is described by an XML pad profile: its USB IDs, keys, knobs, light modes and key map. The schema is [`listener/pads/pad-profile.xsd`](listener/pads/pad-profile.xsd) and the built-in profile is [`listener/pads/ch57x-3key-knob.xml`](listener/pads/ch57x-3key-knob.xml). To support another CH57x pad that speaks the same protocol, export the profile, edit the IDs and codes, and import it. An exported profile carries any key icons you added yourself, so importing it on another PC brings the symbols with it. VoiceLoop only speaks the `ch57x-8890` protocol so far. If your pad uses another, [open an issue](https://github.com/Tombo1001/voiceloop/issues/new?template=pad-support.yml).
 
 ### Dictation
 

@@ -149,15 +149,22 @@
           <xs:complexType>
             <xs:sequence>
               <xs:element name="symbol" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                  <xs:documentation>The icon for one key or knob cap, by file name. Profiles exported from voiceloop 0.8.2 or later also carry icons that aren't built in, as base64 in the element's text, so the symbols work on another PC. Import saves them to the icons folder. Empty text means the icon is looked up by name.</xs:documentation>
+                </xs:annotation>
                 <xs:complexType>
-                  <xs:attribute name="control" type="id" use="required"/>
-                  <xs:attribute name="icon" use="required">
-                    <xs:simpleType>
-                      <xs:restriction base="xs:string">
-                        <xs:pattern value="[^\\/:*?&quot;&lt;&gt;|.][^\\/:*?&quot;&lt;&gt;|]*\.([Pp][Nn][Gg]|[Jj][Pp][Ee]?[Gg])"/>
-                      </xs:restriction>
-                    </xs:simpleType>
-                  </xs:attribute>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:base64Binary">
+                      <xs:attribute name="control" type="id" use="required"/>
+                      <xs:attribute name="icon" use="required">
+                        <xs:simpleType>
+                          <xs:restriction base="xs:string">
+                            <xs:pattern value="[^\\/:*?&quot;&lt;&gt;|.][^\\/:*?&quot;&lt;&gt;|]*\.([Pp][Nn][Gg]|[Jj][Pp][Ee]?[Gg])"/>
+                          </xs:restriction>
+                        </xs:simpleType>
+                      </xs:attribute>
+                    </xs:extension>
+                  </xs:simpleContent>
                 </xs:complexType>
               </xs:element>
             </xs:sequence>

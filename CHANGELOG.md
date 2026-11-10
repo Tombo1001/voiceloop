@@ -8,6 +8,7 @@ VoiceLoop's version is in `listener/version.go`. Each release is tagged `v<versi
 - Speech audio in any WAV format (stereo, 8 to 32-bit, float, any sample rate) is converted before it plays. Kokoro already sent the one format playback expected.
 - The API key stays on the PC: settings exports leave it out, and importing keeps the one already set.
 - The pad's Dictate actions follow Handy's own shortcut, read from Handy's `settings_store.json`, instead of assuming Ctrl+Space. If the pad still sends Ctrl+Space after Handy's shortcut changes, Settings, Macropad offers a one-click fix. Key symbols follow too.
+- Exported pad profiles carry custom key icons (any that aren't built in) as base64 inside each `<symbol>`, and import saves them to the icons folder. A different picture with the same name is saved as `name-2.png`, so nothing is overwritten. `pad-profile.xsd` allows the icon data, and older profiles still load.
 
 ## 0.8.1 (2026-11-10)
 
