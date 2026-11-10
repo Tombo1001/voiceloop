@@ -2,6 +2,10 @@
 
 VoiceLoop's version is in `listener/version.go`. Each release is tagged `v<version>`.
 
+## 0.8.1 (2026-11-10)
+
+- The pill now shows emoji in thread names in colour, drawn from Windows' Segoe UI Emoji (its COLR colour layers, gradients included). They used to show as an empty box: a thread called "Second Brain 🧠" read "Second Brain ▯". Emoji joined with a zero-width joiner, such as 👨‍💻, show as their parts, and skin tones show the default colour.
+
 ## 0.8.0 (2026-11-09)
 
 The first public release.

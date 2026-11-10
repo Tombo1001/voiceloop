@@ -14,6 +14,7 @@ import (
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/gofont/gomedium"
 	"golang.org/x/image/font/opentype"
+	"golang.org/x/image/font/sfnt"
 	"golang.org/x/image/math/fixed"
 	"golang.org/x/image/vector"
 )
@@ -76,8 +77,8 @@ func renderOverlay(scale float64, pal Palette, c PillContent, levels []float64, 
 		if c.Fit {
 			maxW = 1400 * s // a sanity cap only
 		}
-		title = ellipsize(titleFace, c.Title, maxW)
-		titleW = measure(titleFace, title)
+		title = ellipsizeRich(titleFace, 14.5*scale, c.Title, maxW)
+		titleW = measureRich(titleFace, 14.5*scale, title)
 		chip = "Mute thread"
 		if c.Muted {
 			chip = "Muted"
@@ -131,7 +132,7 @@ func renderOverlay(scale float64, pal Palette, c PillContent, levels []float64, 
 	var lay PillLayout
 	if title != "" {
 		tx := 42 * s
-		drawText(img, titleFace, title, tx, row1, colTitle)
+		drawRich(img, titleFace, 14.5*scale, title, tx, row1, colTitle)
 		chipX := tx + titleW + 12*s
 		chipH := 26 * s
 		cc := colButton
@@ -245,6 +246,132 @@ func drawText(img *image.RGBA, f font.Face, s string, x, cy float32, c color.NRG
 	d := font.Drawer{Dst: img, Src: image.NewUniform(c), Face: f,
 		Dot: fixed.Point26_6{X: fixed.Int26_6(x * 64), Y: fixed.Int26_6(baseline * 64)}}
 	d.DrawString(s)
+}
+
+// ---------- text with emoji ----------
+
+var (
+	emojiOnce sync.Once
+	emoji     *emojiFont // nil when there's no colour emoji font: emoji then draw as before
+	textBufMu sync.Mutex
+	textBuf   sfnt.Buffer
+)
+
+// Segoe UI Emoji on Windows. VOICELOOP_EMOJI_FONT points the Linux tests at a copy.
+func emojiFace() *emojiFont {
+	emojiOnce.Do(func() {
+		for _, p := range []string{os.Getenv("VOICELOOP_EMOJI_FONT"), `C:\Windows\Fonts\seguiemj.ttf`} {
+			if p == "" {
+				continue
+			}
+			if e, err := loadEmojiFont(p); err == nil {
+				emoji = e
+				return
+			}
+		}
+	})
+	return emoji
+}
+
+type textRun struct {
+	s     string
+	emoji bool
+	gid   sfnt.GlyphIndex
+}
+
+// runs splits s into plain text and single colour emoji. Variation selectors, the
+// zero-width joiner and skin-tone modifiers are dropped: drawing those properly needs
+// the emoji font's ligatures.
+func runs(s string) []textRun {
+	e := emojiFace()
+	r := []rune(s)
+	var out []textRun
+	var text []rune
+	flush := func() {
+		if len(text) > 0 {
+			out = append(out, textRun{s: string(text)})
+			text = nil
+		}
+	}
+	for i, c := range r {
+		if e != nil && (c == 0xFE0F || c == 0x200D || (c >= 0x1F3FB && c <= 0x1F3FF)) {
+			continue
+		}
+		if e != nil {
+			next := rune(0)
+			if i+1 < len(r) {
+				next = r[i+1]
+			}
+			if gid, ok := e.glyph(c); ok && (c >= 0x1F000 || next == 0xFE0F || !textHas(c)) {
+				flush()
+				out = append(out, textRun{s: string(c), emoji: true, gid: gid})
+				continue
+			}
+		}
+		text = append(text, c)
+	}
+	flush()
+	return out
+}
+
+func textHas(c rune) bool {
+	fontOnce.Do(loadFont)
+	textBufMu.Lock()
+	defer textBufMu.Unlock()
+	gid, err := pillFont.GlyphIndex(&textBuf, c)
+	return err == nil && gid != 0
+}
+
+// measureRich is measure for text that may hold emoji, drawn at px.
+func measureRich(f font.Face, px float64, s string) float32 {
+	var w float32
+	for _, r := range runs(s) {
+		if r.emoji {
+			w += emojiFace().advance(r.gid, px)
+		} else {
+			w += measure(f, r.s)
+		}
+	}
+	return w
+}
+
+// ellipsizeRich shortens s with "…" until it fits in max pixels.
+func ellipsizeRich(f font.Face, px float64, s string, max float32) string {
+	if measureRich(f, px, s) <= max {
+		return s
+	}
+	r := []rune(s)
+	lo, hi := 0, len(r)
+	for lo < hi {
+		mid := (lo + hi + 1) / 2
+		if measureRich(f, px, strings.TrimSpace(string(r[:mid]))+"…") <= max {
+			lo = mid
+		} else {
+			hi = mid - 1
+		}
+	}
+	return strings.TrimSpace(string(r[:lo])) + "…"
+}
+
+// drawRich draws s vertically centred on cy, with colour emoji where the text has them.
+func drawRich(img *image.RGBA, f font.Face, px float64, s string, x, cy float32, c color.NRGBA) {
+	m := f.Metrics()
+	asc, desc := float32(m.Ascent)/64, float32(m.Descent)/64
+	baseline := cy + (asc-desc)/2
+	for _, r := range runs(s) {
+		if !r.emoji {
+			drawText(img, f, r.s, x, cy, c)
+			x += measure(f, r.s)
+			continue
+		}
+		e := emojiFace()
+		em := e.image(r.gid, px, c)
+		top := baseline - float32(e.asc*px/e.upem)
+		left := x - float32(e.left*px/e.upem)
+		at := image.Pt(int(math.Round(float64(left))), int(math.Round(float64(top))))
+		draw.Draw(img, em.Bounds().Add(at), em, image.Point{}, draw.Over)
+		x += e.advance(r.gid, px)
+	}
 }
 
 func clamp01(v float64) float64 { return math.Max(0, math.Min(1, v)) }
