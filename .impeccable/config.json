@@ -20,6 +20,12 @@
         ],
         "createdAt": "2026-11-10T18:10:00.000Z",
         "reason": "Agent, checked on the render 2026-11-10 at 390 and 1440 px: the hit is the full-bleed .doc-body section, whose only child is .wrap with the site gutter (16-48px) as its inset. Text never touches an edge."
+      },
+      {
+        "rule": "design-system-font",
+        "value": "pill\",\"segoe ui\",system-ui,sans-serif",
+        "createdAt": "2026-11-10T18:30:13.002Z",
+        "reason": "Agent, checked 2026-11-10: the stack is \"VL Pill\", \"Segoe UI\", system-ui, sans-serif, declared in DESIGN.md as typography.pill and explained under Typography (the app pill reproduced 1:1). The detector splits the quoted family name \"VL Pill\", so the value never matches the declaration."
       }
     ]
   }
