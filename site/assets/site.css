@@ -7,8 +7,9 @@
 
 :root {
   --grey: #e6e9ec; --grey-d: #d5d9de; --ink: #0a0a0a; --ink-2: #3d4045; --white: #fff;
-  --teal: #4fd1c5; --amber: #f6b24e; --coral: #ff6b6b;
-  /* Event colours in How it works, as Tom has them set in the app (2026-11-10) */
+  --teal: #4fd1c5;
+  /* The site's event colours (Tom, 2026-11-10): speech teal, question blue, approval yellow.
+     The app ships teal, amber and coral as defaults; these are Tom's choice for the site. */
   --speech: var(--teal); --question: #24a0ff; --approval: #e8bf2c;
   --gutter: clamp(16px, 3.3vw, 48px); --max: 1680px;
 }
@@ -70,7 +71,7 @@ h1 span { display: block; }
 .voices > span { display: inline-block; margin-bottom: 10px; font-size: 13px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; background: var(--grey); box-shadow: 0 0 0 5px var(--grey); }
 .voices > span small { margin-left: 10px; font-weight: 500; letter-spacing: .02em; text-transform: none; color: var(--ink-2); }
 .voice-list { display: flex; flex-wrap: wrap; gap: 2px; width: fit-content; background: var(--grey); }
-.voice-list button { all: unset; cursor: pointer; display: grid; gap: 6px; width: 86px; padding: 10px; background: var(--white); font-size: 13px; font-weight: 700; }
+.voice-list button { all: unset; box-sizing: border-box; cursor: pointer; display: grid; gap: 6px; width: 92px; padding: 10px; background: var(--white); font-size: 13px; font-weight: 700; }
 .voice-list button i { height: 10px; background: var(--c); }
 .voice-list button small { font-weight: 400; color: #4a4d52; }
 .voice-list button[aria-pressed="true"] { background: var(--ink); color: var(--white); }
@@ -179,7 +180,9 @@ h3 { margin: 0; font-weight: 800; font-size: 22px; line-height: 1.15; letter-spa
 @media (prefers-reduced-motion: reduce) { .bar, .mark, .node, .pin { transition: none; } }
 @media (max-width: 900px) {
   .top { flex-wrap: wrap; gap: 8px; }
-  .top nav a { padding: 8px 10px; font-size: 12px; }
+  .top nav { flex-wrap: wrap; }
+  .top nav a { gap: 6px; padding: 8px; font-size: 12px; white-space: nowrap; }
+  .top nav a svg { width: 14px; height: 14px; }
   .hero { grid-template-columns: minmax(0, 1fr); }
   .shot { order: -1; margin-bottom: 44px; }
   .shot .vlpill { --ps: .92; }

@@ -69,10 +69,10 @@ function bands(n) {
 
 // ---- Hero bars: the pill's level meter, blown up. [colour, top %, thickness %, width %, rotation] ----
 const SPEC = [
-  ["var(--teal)", 3, 13, 62, -7], ["var(--amber)", 18, 10, 64, -7], ["var(--coral)", 33, 12, 86, -7],
+  ["var(--teal)", 3, 13, 62, -7], ["var(--question)", 18, 10, 64, -7], ["var(--approval)", 33, 12, 86, -7],
   ["var(--teal)", 62, 8, 50, -7], ["var(--ink)", 101, 3.2, 30, -7],
 ];
-const MARKS = [["var(--coral)", 8, 62, 44, 18, 24], ["var(--amber)", 88, 18, 26, 26, -18], ["var(--ink)", 92, 72, 18, 18, 30], ["var(--teal)", 40, 88, 60, 14, -10], ["var(--ink)", 58, 12, 14, 14, 12]];
+const MARKS = [["var(--approval)", 8, 62, 44, 18, 24], ["var(--question)", 88, 18, 26, 26, -18], ["var(--ink)", 92, 72, 18, 18, 30], ["var(--teal)", 40, 88, 60, 14, -10], ["var(--ink)", 58, 12, 14, 14, 12]];
 const barLayer = document.getElementById("bars");
 const bars = SPEC.map(([c, t, h, w, r]) => { const b = document.createElement("i"); b.className = "bar";
   b.style.cssText = `--c:${c};--t:${t}%;--h:${h}%;--w:${w}%;--r:${r}deg;--s:1`; barLayer.append(b); return b; });
@@ -88,7 +88,7 @@ function moveBars() {
 function startBars() { if (still) return; cancelAnimationFrame(barsRaf); barsRaf = requestAnimationFrame(moveBars); }
 
 // ---- Voice picker ----
-const list = document.getElementById("voice-list"), swatch = ["var(--teal)", "var(--amber)", "var(--coral)"];
+const list = document.getElementById("voice-list"), swatch = ["var(--teal)", "var(--question)", "var(--approval)"];
 VOICES.forEach(([id, name, accent], i) => {
   const b = document.createElement("button");
   b.type = "button";
