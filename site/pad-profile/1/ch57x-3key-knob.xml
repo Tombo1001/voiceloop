@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  VoiceLoop pad profile: the 3-key + knob CH57x macropad (USB 1189:8890).
+  Sold under many brand names. The protocol is ported from ch57x-keyboard-tool
+  (kriomant, MIT/Apache-2.0). Schema: pad-profile.xsd.
+-->
+<padProfile xmlns="https://voiceloop.dev/pad-profile/1" version="1">
+  <name>3 keys + knob (CH57x)</name>
+  <description>Three mechanical keys and a push knob, USB-C. Keys and knob are programmed over the pad's vendor HID interface, no driver needed.</description>
+
+  <!-- How VoiceLoop finds the pad's programming interface. -->
+  <usb vendorId="0x1189" productId="0x8890" usagePage="0xFF00" reportLength="65"/>
+
+  <!-- Which built-in encoder turns key maps into USB messages. -->
+  <protocol>ch57x-8890</protocol>
+
+  <!-- A key can send up to 5 presses in a row; this pad only applies
+       ctrl/alt/shift/win to the first one. -->
+  <limits maxSequence="5" modifiersOnFirstKeyOnly="true"/>
+
+  <!-- Keys left to right, top to bottom, as seen with the knob on the right
+       (USB port at the back). code = the protocol's number for that key. -->
+  <keys rows="1" columns="3">
+    <key id="key1" code="1"/>
+    <key id="key2" code="2"/>
+    <key id="key3" code="3"/>
+  </keys>
+  <knobs>
+    <knob id="knob1" turnLeft="13" press="14" turnRight="15"/>
+  </knobs>
+
+  <!-- LED effects. Modes 3-8 exist but show nothing on this pad. -->
+  <lights>
+    <mode value="0">Off</mode>
+    <mode value="1">Pulsing, changes colour on each key press</mode>
+    <mode value="2">Carousel, lights each key in turn</mode>
+  </lights>
+
+  <!-- What each control sends. Action syntax: "ctrl-space", "enter",
+       "ctrl-space,slash" (a sequence), media keys like "volumeup", or ""
+       for nothing. -->
+  <mapping knobSide="right" lights="0">
+    <bind control="key1" action="ctrl-space"/>
+    <bind control="key2" action="ctrl-space,slash"/>
+    <bind control="key3" action="enter"/>
+    <bind control="knob1.left" action="volumedown"/>
+    <bind control="knob1.press" action="ctrl-alt-x"/>
+    <bind control="knob1.right" action="volumeup"/>
+  </mapping>
+
+  <!-- Symbols to 3D print and glue on: an icon per key (and knob cap), fitted
+       to a square or round size in mm, printed this many layers thick. Icons
+       are file names in VoiceLoop's icons folder. -->
+  <symbols shape="square" size="9" layers="2" layerHeight="0.2">
+    <symbol control="key1" icon="dictate.png"/>
+    <symbol control="key2" icon="slash-command.png"/>
+    <symbol control="key3" icon="send.png"/>
+    <symbol control="knob1" icon="stop-speech.png"/>
+  </symbols>
+</padProfile>
