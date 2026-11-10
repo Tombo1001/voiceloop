@@ -6,6 +6,18 @@
 <title>voiceloop: hear Claude Code's replies on your Windows PC</title>
 <meta name="description" content="voiceloop reads Claude Code's replies aloud on your Windows PC, even when Claude Code runs on another machine. Free and open source.">
 <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+<link rel="canonical" href="https://voiceloop.dev/">
+<meta name="theme-color" content="#e6e9ec">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="voiceloop">
+<meta property="og:title" content="voiceloop: hear Claude Code's replies on your Windows PC">
+<meta property="og:description" content="Claude Code's replies, read aloud at your desk, even when the agent runs on another machine. Free and open source.">
+<meta property="og:url" content="https://voiceloop.dev/">
+<meta property="og:image" content="https://voiceloop.dev/assets/img/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The voiceloop lockup and the line 'Your agent is done. Look up.' beside a 3-key macropad with 3D-printed key symbols">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preload" href="assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/site.css">
 </head>
@@ -147,7 +159,99 @@
         </div>
         <div>
           <h3>A different pad?</h3>
-          <p>Each pad model is described by an XML profile: its USB IDs, keys, knobs and lights. A pad that speaks the same CH57x protocol only needs a new profile. <a href="https://github.com/Tombo1001/voiceloop/issues/new?template=pad-support.yml">Ask for yours on GitHub</a>.</p>
+          <p>Each pad model is described by an XML profile: its USB IDs, keys, knobs and lights. A pad that speaks the same CH57x protocol only needs a new profile. <a href="pad-profile/1/">Make one</a>, or <a href="https://github.com/Tombo1001/voiceloop/issues/new?template=pad-support.yml">ask for yours on GitHub</a>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec vs" id="compare" aria-labelledby="vs-h">
+    <div class="wrap">
+      <header class="sec-head">
+        <h2 class="barred" id="vs-h"><i class="hbar" aria-hidden="true" style="--c:var(--question);--w:38vw;--h:42px"></i>Compared with VoiceMode</h2>
+        <p><a href="https://github.com/mbailey/voicemode">VoiceMode</a> is the best-known voice add-on for Claude Code. It holds a two-way spoken conversation over MCP, with speech-to-text built in. If you work on one machine and want to talk with Claude, try it first.</p>
+      </header>
+      <div class="vs-grid">
+        <div class="vs-them">
+          <h3>VoiceMode suits you if</h3>
+          <ul>
+            <li>Claude Code runs on the computer in front of you.</li>
+            <li>You want to talk with Claude as well as hear it. VoiceMode listens and speaks.</li>
+          </ul>
+        </div>
+        <div class="vs-us">
+          <h3><b>voiceloop</b> suits you if</h3>
+          <ul>
+            <li><b>Claude Code runs somewhere else.</b> The agent can sit on a server while the sound plays at your desk. VoiceMode plays audio where Claude Code runs.</li>
+            <li><b>You work on Windows.</b> It's a native app with a tray icon, the on-screen pill, a choice of output device and silence while the PC is locked.</li>
+            <li><b>You run several agents.</b> Mute a thread, hear only the one you last typed into, or let every thread take its turn.</li>
+            <li><b>You'd like a pad on the desk.</b> Dictate, send and stop speech with one hand, all set up from <b>voiceloop</b>.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="vs-note"><b>voiceloop</b> only speaks. It doesn't listen, so it leaves dictation to <a href="https://github.com/cjpais/Handy">Handy</a> or a tool like it.</p>
+    </div>
+  </section>
+
+  <section class="sec safe" id="security" aria-labelledby="safe-h">
+    <div class="wrap">
+      <header class="sec-head">
+        <h2 class="barred" id="safe-h"><i class="hbar" aria-hidden="true" style="--c:var(--approval);--w:28vw;--h:40px"></i>Security</h2>
+        <p>The hook sends reply text to your PC over plain HTTP, with a token. That suits a home network or a tailnet, and not the open internet. Here's what listens, and where the token lives.</p>
+      </header>
+      <dl class="facts">
+        <div><dt><code>:8765</code><span>The app</span></dt><dd>Takes replies from the hook, and every request needs the token. Keep it on a LAN or a tailnet. Install with <code>-HookFrom</code> and the firewall only lets your Claude Code machine in.</dd></div>
+        <div><dt><code>token</code><span>The key</span></dt><dd>Anyone who has it can make your PC speak and mute threads. It's in <code>config.json</code> in the install folder, and in <code>hook.json</code> (mode 0600) on the Claude Code machine.</dd></div>
+        <div><dt><code>127.0.0.1:8766</code><span>Settings</span></dt><dd>Listens on this PC only. Each run makes a random key that the page needs, and the server checks the Host header.</dd></div>
+        <div><dt><code>voiceloop_hook.py</code><span>The hook</span></dt><dd>Reads T3 Code's database read-only, to find thread names. It sends nothing anywhere except the address you paired it with.</dd></div>
+        <div><dt><code>:8880</code><span>Kokoro</span></dt><dd>Has no authentication, so keep it off the internet too.</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="sec install" id="install" aria-labelledby="install-h">
+    <div class="wrap">
+      <header class="sec-head">
+        <h2 class="barred" id="install-h"><i class="hbar" aria-hidden="true" style="--c:var(--teal);--w:34vw;--h:44px"></i>Install it</h2>
+        <p>Three steps. You need Docker somewhere for the voice, a Windows 10 or 11 PC for the app, and Python 3.8 or later wherever Claude Code runs.</p>
+      </header>
+      <ol class="steps">
+        <li>
+          <span class="n" aria-hidden="true">1</span>
+          <div class="txt">
+            <h3>Start the voice</h3>
+            <p>Run Kokoro-FastAPI in Docker, on the Windows PC or any box it can reach. A CPU is enough. Any other server with an OpenAI-style <code>/v1/audio/speech</code> endpoint will do instead. <a href="https://github.com/Tombo1001/voiceloop/blob/main/docs/kokoro.md">The Kokoro guide</a> has the details.</p>
+          </div>
+          <pre><code>cd kokoro
+docker compose up -d</code></pre>
+        </li>
+        <li>
+          <span class="n" aria-hidden="true">2</span>
+          <div class="txt">
+            <h3>Install the app</h3>
+            <p>Unzip the release, right-click <code>install.ps1</code> and choose Run with PowerShell. Settings opens. Enter the speech server's address, press Test connection and pick a voice. To let only your Claude Code machine through the firewall, run it from an administrator PowerShell with <code>-HookFrom</code>.</p>
+          </div>
+          <pre><code>.\install.ps1 -HookFrom 192.168.1.20</code></pre>
+        </li>
+        <li>
+          <span class="n" aria-hidden="true">3</span>
+          <div class="txt">
+            <h3>Pair the hook</h3>
+            <p>In Settings, About, pick the address your Claude Code machine can reach and press Copy command. Run it next to <code>voiceloop_hook.py</code> on that machine. It adds four hooks to Claude Code and plays a test phrase on your PC.</p>
+          </div>
+          <pre><code>python3 voiceloop_hook.py setup \
+  --url http://192.168.1.50:8765 \
+  --token 3f9c…</code></pre>
+        </li>
+      </ol>
+      <div class="ship">
+        <div class="smart">
+          <h3>SmartScreen may warn you</h3>
+          <p>The exe isn't code-signed, so Windows may say it "protected your PC". Choose More info, then Run anyway. Each release lists the exe's SHA256, so you can check the download first. To remove <b>voiceloop</b>, run <code>install.ps1 -Uninstall</code>, and <code>voiceloop_hook.py remove</code> on the Claude Code machine.</p>
+        </div>
+        <div class="ctas">
+          <a class="do" href="https://github.com/Tombo1001/voiceloop/releases/latest"><span>Download for Windows<small>v0.8.1 · free and open source</small></span><i><svg viewBox="0 0 22 22" aria-hidden="true"><path d="M3 11h15m-6-6 6 6-6 6" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="square"/></svg></i></a>
+          <a class="ghost" href="https://github.com/Tombo1001/voiceloop#readme">Read the README</a>
         </div>
       </div>
     </div>
@@ -162,7 +266,7 @@
       <p>Speech by Kokoro. The voices on this page are real Kokoro output.</p>
       <p>As an Amazon Associate I earn from qualifying purchases.</p>
     </div>
-    <nav aria-label="Footer"><a href="https://github.com/Tombo1001/voiceloop">GitHub</a><a href="https://github.com/Tombo1001/voiceloop/releases">Releases</a></nav>
+    <nav aria-label="Footer"><a href="#install">Install</a><a href="https://github.com/Tombo1001/voiceloop">GitHub</a><a href="https://github.com/Tombo1001/voiceloop/releases">Releases</a><a href="pad-profile/1/">Pad profiles</a></nav>
   </div>
 </footer>
 <script src="assets/site.js"></script>
