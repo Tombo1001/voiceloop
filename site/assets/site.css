@@ -104,6 +104,7 @@ h2 { margin: 0; font-weight: 900; font-size: clamp(44px, 5.4vw, 80px); line-heig
 h3 { margin: 0; font-weight: 800; font-size: 22px; line-height: 1.15; letter-spacing: -0.01em; }
 .label { font-size: 13px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
 .sec-bars { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+/* One bar per heading: two multiplied bars crossing make a dark band behind the text. */
 .sec-bars i { position: absolute; height: var(--h); width: var(--w); background: var(--c); mix-blend-mode: multiply; transform: rotate(-7deg); transform-origin: 0 50%; }
 
 /* How it works */
