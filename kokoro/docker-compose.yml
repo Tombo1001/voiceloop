@@ -2,11 +2,11 @@
 # Start: docker compose up -d     Check: curl http://localhost:8880/health
 services:
   kokoro:
-    image: ghcr.io/remsky/kokoro-fastapi-cpu:v0.9.2
+    image: ghcr.io/remsky/kokoro-fastapi-cpu:v0.10.0   # v0.10.0 or later: older ones keep growing, see docs/kokoro.md
     container_name: kokoro-tts
     restart: unless-stopped
     ports:
       - "8880:8880"        # change the left number if 8880 is taken on the host
-    mem_limit: 3g          # it sits around 1.6-2.2 GB; at 2.5 GB it was killed for running out of memory
+    mem_limit: 3g          # v0.10.0 settles around 1.4 GB, so this leaves room
     memswap_limit: 3g
     cpus: 3                # more cores = faster synthesis; leave some for the rest of the box

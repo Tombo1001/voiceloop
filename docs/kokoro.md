@@ -28,7 +28,7 @@ Without compose:
 ```bash
 docker run -d --name kokoro-tts --restart unless-stopped \
   --memory 3g --memory-swap 3g --cpus 3 \
-  -p 8880:8880 ghcr.io/remsky/kokoro-fastapi-cpu:v0.9.2
+  -p 8880:8880 ghcr.io/remsky/kokoro-fastapi-cpu:v0.10.0
 ```
 
 The first start downloads about 3.3 GB, and the model then takes a little under a minute to load. Kokoro-FastAPI also has a GPU image; its README has the details.
@@ -41,7 +41,8 @@ These were measured on 3 cores of a Ryzen 5 5600 that was also running other ser
 
 - About 1 s to synthesise 40 characters, and about 3.6 s for 180 characters.
 - A 935-character reply took 19 s as one request. **voiceloop** splits replies into sentence chunks and plays each one while the next is made, so speech starts about 1.3 s after the reply arrives.
-- Memory sat at 1.6 to 2.2 GB. With a 2.5 GB cap, Docker killed it for running out of memory several times in one evening, which is why the compose file uses 3 GB. When Kokoro restarts mid-reply, **voiceloop** retries for about 20 seconds.
+- Memory: use v0.10.0 or later. v0.9.2 and older keep about 40 MB more for every request until they're restarted ([Kokoro-FastAPI #594](https://github.com/remsky/Kokoro-FastAPI/issues/594)), so they slowly fill any cap and get killed. Measured on 2026-11-10 with 15 identical requests: v0.9.2 went from 1.2 to 1.8 GB and kept climbing, while v0.10.0 rose to 1.35 GB in the first five and stayed there. When Kokoro restarts mid-reply, **voiceloop** retries for about 20 seconds.
+- If you have to run an older version, restart it now and then, and check that it can't spill into swap. On some hosts Docker doesn't apply `--memory-swap`: if `memory.swap.max` in the container's cgroup reads `max`, the extra memory goes to swap instead.
 
 ## Keep it private
 
@@ -59,7 +60,7 @@ From 0.8.2, **voiceloop** works with any server that has an OpenAI-style `POST /
 
 Tested on 2026-11-10:
 
-- **Kokoro-FastAPI** v0.9.2, model `kokoro`, voice `bf_emma`.
+- **Kokoro-FastAPI** v0.9.2 and v0.10.0, model `kokoro`, voice `bf_emma`.
 - **[Speaches](https://github.com/speaches-ai/speaches)** (`ghcr.io/speaches-ai/speaches:latest-cpu`) with a Piper voice. Download the model into Speaches first with `curl -X POST http://my-server:8000/v1/models/speaches-ai/piper-en_GB-alba-medium`, then set the model to `speaches-ai/piper-en_GB-alba-medium` and the voice to `alba`. Speaches can also run Kokoro (`speaches-ai/Kokoro-82M-v1.0-ONNX`, voice `af_heart`). Its own docs list the other models.
 
 These have the same endpoint, going by their docs and code, but haven't been tried with **voiceloop**:
