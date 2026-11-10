@@ -217,15 +217,19 @@ code { font-family: "Cascadia Mono", Consolas, monospace; font-size: 13px; color
     </section>
 
     <section id="voice">
-      <h2>Kokoro server</h2>
+      <h2>Speech server</h2>
       <div class="card">
-        <div class="row"><label for="kokoro">Address<span class="hint">Turns reply text into speech</span></label>
+        <div class="row"><label for="kokoro">Address<span class="hint">Kokoro-FastAPI, or any server with an OpenAI-style /v1/audio/speech</span></label>
           <input type="text" id="kokoro" data-k="kokoro_url" spellcheck="false" placeholder="http://127.0.0.1:8880"></div>
+        <div class="row"><label for="ttsmodel">Model<span class="hint">kokoro for Kokoro-FastAPI. Other servers name theirs in their docs</span></label>
+          <input type="text" id="ttsmodel" data-k="tts_model" spellcheck="false" placeholder="kokoro"></div>
+        <div class="row"><label for="ttskey">API key<span class="hint">Only if the server asks for one. It stays on this PC and isn't exported</span></label>
+          <input type="password" id="ttskey" data-k="tts_api_key" spellcheck="false" autocomplete="off" placeholder="none"></div>
         <div class="row"><div class="lbl">Connection<span class="hint status" id="kstatus">Not tested yet</span></div><button class="btn primary" id="ktest">Test connection</button></div>
       </div>
       <h2>Speech</h2>
       <div class="card">
-        <div class="row"><label for="voicesel">Voice<span class="hint">bf_ and bm_ are British English</span></label><select id="voicesel" data-k="voice"></select></div>
+        <div class="row"><label for="voicesel">Voice<span class="hint" id="voicehint">With Kokoro, bf_ and bm_ are British English</span></label><select id="voicesel" data-k="voice"></select><input type="text" id="voicetxt" data-k="voice" spellcheck="false" style="display:none"></div>
         <div class="row"><div class="lbl">Speed</div>
           <div class="ctl"><input type="range" min="0.7" max="1.5" step="0.05" data-k="speed"><span class="val" data-v="speed" data-unit="×"></span></div></div>
         <div class="row"><label for="charlimit">Longest reply to read out<span class="hint" id="charhint"></span></label>
@@ -300,7 +304,7 @@ code { font-family: "Cascadia Mono", Consolas, monospace; font-size: 13px; color
       <div class="card">
         <div class="row"><div class="lbl">Version</div><span id="ver"></span></div>
         <div class="row"><div class="lbl">Installed in</div><code id="folder"></code></div>
-        <div class="row"><div class="lbl">How it works<span class="hint">A hook in Claude Code sends each reply here. Kokoro turns it into speech, and this app plays it and shows the pill.</span></div></div>
+        <div class="row"><div class="lbl">How it works<span class="hint">A hook in Claude Code sends each reply here. Your speech server (Kokoro, for example) turns it into speech, and this app plays it and shows the pill.</span></div></div>
         <div class="row"><div class="lbl">Source, help and updates</div><a class="ext" href="https://github.com/Tombo1001/voiceloop" target="_blank" rel="noopener">github.com/Tombo1001/voiceloop</a></div>
       </div>
       <h2>Pair the hook</h2>
@@ -315,7 +319,7 @@ code { font-family: "Cascadia Mono", Consolas, monospace; font-size: 13px; color
     </section>
   </main>
 </div>
-<footer><span><span class="dotst" id="fdot"></span><span id="ftext">Kokoro not tested</span></span><span id="fver"></span></footer>
+<footer><span><span class="dotst" id="fdot"></span><span id="ftext">Speech server not tested</span></span><span id="fver"></span></footer>
 <div class="toast" id="toast">Saved</div>
 
 <script>
@@ -324,7 +328,7 @@ const api = (path, body) => fetch(path, {method: body === undefined ? "GET" : "P
   headers: {"X-VL-Key": key, "Content-Type": "application/json"}, body: body === undefined ? undefined : JSON.stringify(body)})
   .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
-let S = {}, voices = [], pairing = {};
+let S = {}, voices = [], pairing = {}, tested = false;
 
 function toast(t = "Saved") { const e = $("#toast"); e.textContent = t; e.classList.toggle("warn", /fail|couldn|not found/i.test(t)); e.classList.add("show"); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove("show"), 900); }
 
@@ -386,6 +390,11 @@ function drawThreads(list) {
 setInterval(() => { if ($("#threadsec").classList.contains("on")) api("/api/state").then(st => drawThreads(st.threads || [])).catch(() => {}); }, 5000);
 
 function fillVoices() {
+  // Servers that don't list their voices get a text box instead of the list.
+  const typed = tested && !voices.length;
+  $("#voicesel").style.display = typed ? "none" : ""; $("#voicetxt").style.display = typed ? "" : "none";
+  $("#voicehint").textContent = typed ? "This server doesn't list its voices, so type one from its docs" : "With Kokoro, bf_ and bm_ are British English";
+  $("#voicetxt").value = S.voice;
   const sel = $("#voicesel"); sel.innerHTML = "";
   const list = voices.length ? voices : [S.voice];
   const brit = list.filter(v => /^b[fm]_/.test(v)), rest = list.filter(v => !/^b[fm]_/.test(v));
@@ -435,6 +444,7 @@ $$("[data-k]").forEach(el => {
     if (el.type === "range") v = Number(v);
     if (el.type === "number") { v = Math.max(0, Math.round(Number(v) || 0)); showVal(k); }
     save({[k]: v}, el.tagName === "SELECT" || el.type === "checkbox");
+    if (k === "kokoro_url" || k === "tts_model" || k === "tts_api_key") testKokoro();
     if (k === "fit_thread_name") $("#maxrow").style.display = v ? "none" : "";
     if (k === "show_thread_name" || k === "fit_thread_name" || k === "max_title") drawPreview();
     showVal(k); drawPreview();
@@ -463,14 +473,16 @@ $("#resetcol").addEventListener("click", () => {
 function setStatus(ok, text) {
   const s = $("#kstatus"); s.textContent = text; s.className = "hint status " + (ok ? "ok" : "bad");
   $("#fdot").className = "dotst " + (ok ? "ok" : "bad");
-  $("#ftext").textContent = ok ? `Kokoro connected · ${S.voice}` : "Kokoro not reachable";
+  $("#ftext").textContent = ok ? `Speech server connected · ${S.voice}` : "Speech server not reachable";
 }
 function testKokoro() {
   const url = $("#kokoro").value.trim();
   $("#kstatus").textContent = "Testing…"; $("#kstatus").className = "hint status";
-  return api("/api/test-kokoro", {URL: url}).then(r => {
-    if (r.ok) { voices = r.voices || []; fillVoices(); setStatus(true, `Connected in ${r.ms} ms · ${voices.length} voices`); }
-    else setStatus(false, r.error);
+  return api("/api/test-speech", {URL: url, Model: $("#ttsmodel").value, Key: $("#ttskey").value, Voice: S.voice}).then(r => {
+    if (r.ok) {
+      voices = r.voices || []; tested = true; fillVoices();
+      setStatus(true, `Connected in ${r.ms} ms · ` + (voices.length ? `${voices.length} voices` : "no voice list"));
+    } else setStatus(false, r.error);
   });
 }
 $("#ktest").addEventListener("click", testKokoro);

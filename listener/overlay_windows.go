@@ -74,7 +74,7 @@ type overlayState struct {
 	visible bool
 	content PillContent
 	thread  string    // thread id of what's showing, for the mute button
-	env     []float64 // nil while pending (waiting for Kokoro)
+	env     []float64 // nil while pending (waiting for the speech server)
 	shownAt time.Time
 	playAt  time.Time // when audio started, after the pre-roll
 }
@@ -285,7 +285,7 @@ func overlayPaint() {
 	}
 }
 
-// overlayPending shows the pill straight away while Kokoro prepares the audio.
+// overlayPending shows the pill straight away while the speech server prepares the audio.
 func overlayPending(j job) {
 	if !ovEnabled {
 		return

@@ -5,11 +5,9 @@
 package main
 
 import (
-	"bytes"
 	"crypto/subtle"
 	"encoding/binary"
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -422,7 +420,7 @@ func speakChunks(j job) {
 			}
 			start := time.Now()
 			wav, err := synth(c)
-			// Kokoro sometimes restarts mid-reply (for example when it hits a container memory cap) and
+			// The speech server sometimes restarts mid-reply (for example when it hits a container memory cap) and
 			// takes 10-20 s to come back, so keep trying for a while.
 			for _, wait := range []time.Duration{4 * time.Second, 7 * time.Second, 10 * time.Second} {
 				if err == nil || j.gen != gen.Load() {
@@ -461,31 +459,7 @@ func speakChunks(j job) {
 
 func synth(text string) ([]byte, error) {
 	st := store.get()
-	return synthWith(st.KokoroURL, st.Voice, st.Speed, text)
-}
-
-func synthWith(url, voice string, speed float64, text string) ([]byte, error) {
-	if url == "" {
-		return nil, fmt.Errorf("no Kokoro server set")
-	}
-	req, _ := json.Marshal(map[string]any{
-		"model": "kokoro", "voice": voice, "input": text,
-		"response_format": "wav", "speed": speed, "stream": false,
-	})
-	c := &http.Client{Timeout: 60 * time.Second}
-	resp, err := c.Post(url+"/v1/audio/speech", "application/json", bytes.NewReader(req))
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	b, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("kokoro %d: %s", resp.StatusCode, b)
-	}
-	return b, nil
+	return synthWith(st.server(), st.Voice, st.Speed, text)
 }
 
 // play blocks until the audio ends or is stopped, showing the overlay with kind's colour.

@@ -36,6 +36,7 @@ func currentBundle(voiceOn bool) SettingsBundle {
 	b := SettingsBundle{Format: settingsBundleFormat, Exported: time.Now().UTC(), AppVersion: version,
 		VoiceMode: voiceOn, Settings: store.get(), MutedThreads: []MutedThread{}}
 	b.Settings.Pad = nil
+	b.Settings.TTSKey = "" // a speech server's API key stays on this machine, like the token
 	for _, t := range threads.list() {
 		if t.Muted {
 			b.MutedThreads = append(b.MutedThreads, MutedThread{t.ID, t.Title})
@@ -88,6 +89,9 @@ func backupSettings(dir, why string, voiceOn bool) (string, error) {
 
 // applyBundle replaces the settings and the mute list with the bundle's.
 func applyBundle(b SettingsBundle) error {
+	if b.Settings.TTSKey == "" {
+		b.Settings.TTSKey = store.get().TTSKey // exports leave the key out, so keep this machine's
+	}
 	if err := store.replace(b.Settings); err != nil {
 		return err
 	}

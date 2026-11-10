@@ -30,7 +30,9 @@ type Config struct {
 
 type Settings struct {
 	// Voice
-	KokoroURL string  `json:"kokoro_url"`
+	KokoroURL string  `json:"kokoro_url"`  // the speech server; the name is from when only Kokoro worked
+	TTSModel  string  `json:"tts_model"`   // model name sent to the server; "kokoro" for Kokoro-FastAPI
+	TTSKey    string  `json:"tts_api_key"` // optional bearer token for the server; never exported
 	Voice     string  `json:"voice"`
 	Speed     float64 `json:"speed"`
 	CharLimit int     `json:"speech_char_limit"` // longest reply read out, in characters; 0 = no limit
@@ -67,9 +69,14 @@ type Settings struct {
 	Pad *PadMap `json:"pad,omitempty"`
 }
 
+// server is where this machine's speech comes from.
+func (s Settings) server() ttsServer {
+	return ttsServer{URL: s.KokoroURL, Model: s.TTSModel, Key: s.TTSKey}
+}
+
 func defaultSettings() Settings {
 	return Settings{
-		Voice: "bf_emma", Speed: 1.05, CharLimit: 600,
+		TTSModel: "kokoro", Voice: "bf_emma", Speed: 1.05, CharLimit: 600,
 		SpeechVolume: 100, ChimeVolume: 70, PreRollMs: 400, MuteWhenLocked: true,
 		SpeechColour: "#4fd1c5", QuestionColour: "#f6b24e", ApprovalColour: "#ff6b6b",
 		PillColour: "#2a2a2c", PillOpacity: 95, PillSize: 100,
@@ -114,6 +121,10 @@ func (s *Settings) normalise() {
 		s.Voice = d.Voice
 	}
 	s.KokoroURL = strings.TrimRight(strings.TrimSpace(s.KokoroURL), "/")
+	if s.TTSModel = strings.TrimSpace(s.TTSModel); s.TTSModel == "" {
+		s.TTSModel = "kokoro"
+	}
+	s.TTSKey = strings.TrimSpace(s.TTSKey)
 	for _, c := range []*string{&s.SpeechColour, &s.QuestionColour, &s.ApprovalColour, &s.PillColour} {
 		if _, err := parseHex(*c); err != nil {
 			*c = ""

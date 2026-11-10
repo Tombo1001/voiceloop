@@ -136,10 +136,12 @@ func settingsServer() {
 		}
 		writeState(w)
 	}))
-	mux.HandleFunc("/api/test-kokoro", guard(func(w http.ResponseWriter, r *http.Request) {
-		var b struct{ URL string }
-		_ = json.NewDecoder(io.LimitReader(r.Body, 4<<10)).Decode(&b)
-		json.NewEncoder(w).Encode(testKokoro(strings.TrimRight(strings.TrimSpace(b.URL), "/")))
+	mux.HandleFunc("/api/test-speech", guard(func(w http.ResponseWriter, r *http.Request) {
+		// The panel sends what's in the boxes, which may not be saved yet.
+		var b struct{ URL, Model, Key, Voice string }
+		_ = json.NewDecoder(io.LimitReader(r.Body, 8<<10)).Decode(&b)
+		srv := ttsServer{URL: strings.TrimRight(strings.TrimSpace(b.URL), "/"), Model: strings.TrimSpace(b.Model), Key: strings.TrimSpace(b.Key)}
+		json.NewEncoder(w).Encode(testSpeechServer(srv, firstNonEmpty(strings.TrimSpace(b.Voice), store.get().Voice)))
 	}))
 	mux.HandleFunc("/api/preview", guard(func(w http.ResponseWriter, r *http.Request) {
 		var b struct{ Kind string }
@@ -493,64 +495,6 @@ func writeState(w http.ResponseWriter) {
 			"urls":  hookURLs(cfg.Listen),
 		},
 	})
-}
-
-type kokoroResult struct {
-	OK     bool     `json:"ok"`
-	Ms     int64    `json:"ms"`
-	Error  string   `json:"error,omitempty"`
-	Voices []string `json:"voices,omitempty"`
-}
-
-func testKokoro(url string) kokoroResult {
-	if url == "" {
-		return kokoroResult{Error: "Enter the server address first"}
-	}
-	c := &http.Client{Timeout: 5 * time.Second}
-	start := time.Now()
-	resp, err := c.Get(url + "/health")
-	if err != nil {
-		return kokoroResult{Error: "Can't reach the server: " + shortErr(err)}
-	}
-	resp.Body.Close()
-	ms := time.Since(start).Milliseconds()
-	if resp.StatusCode != 200 {
-		return kokoroResult{Ms: ms, Error: "Server answered " + resp.Status}
-	}
-	res := kokoroResult{OK: true, Ms: ms}
-	if vr, err := c.Get(url + "/v1/audio/voices"); err == nil {
-		var body struct {
-			Voices []json.RawMessage `json:"voices"`
-		}
-		if json.NewDecoder(vr.Body).Decode(&body) == nil {
-			for _, raw := range body.Voices {
-				var s string
-				var o struct{ ID, Name string }
-				if json.Unmarshal(raw, &s) == nil {
-					res.Voices = append(res.Voices, s)
-				} else if json.Unmarshal(raw, &o) == nil {
-					res.Voices = append(res.Voices, firstNonEmpty(o.ID, o.Name))
-				}
-			}
-		}
-		vr.Body.Close()
-	}
-	return res
-}
-
-func shortErr(err error) string {
-	s := err.Error()
-	if i := strings.LastIndex(s, ": "); i >= 0 {
-		return s[i+2:]
-	}
-	return s
-}
-
-func firstNonEmpty(a, b string) string {
-	if a != "" {
-		return a
-	}
-	return b
 }
 
 func iconsDir() string { return filepath.Join(baseDir, "icons") }

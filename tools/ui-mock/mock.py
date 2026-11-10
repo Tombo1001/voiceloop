@@ -29,7 +29,7 @@ def profile():
 
 STATE = {"settings": {"voice": "bf_emma", "speed": 1, "anchor": "bottom-centre", "thread_mode": "all", "pill_size": 100,
                       "speech_colour": "#2cd888", "question_colour": "#24a0ff", "approval_colour": "#e8bf2c", "pill_colour": "#2a2a2c",
-                      "pill_opacity": 95, "max_title": 260, "thread_trim_hours": 24, "kokoro_url": "http://example:8880"},
+                      "pill_opacity": 95, "max_title": 260, "thread_trim_hours": 24, "kokoro_url": "http://example:8880", "tts_model": "kokoro", "tts_api_key": ""},
          "monitors": [{"name": "Display 1", "device": "d1", "primary": True, "width": 2560, "height": 1440, "scale": 1.25}],
          "devices": ["Speakers"], "voice_on": True, "threads": [], "version": "0.7.0-mock", "folder": "C:\\Users\\you\\AppData\\Local\\VoiceLoop",
          "pairing": {"token": "0123456789abcdef0123456789abcdef0123456789abcdef", "urls": ["http://10.0.0.20:8765", "http://100.64.0.7:8765"]}}
@@ -56,7 +56,7 @@ class H(BaseHTTPRequestHandler):
         self.send_response(404); self.end_headers()
     def do_POST(self):
         self.rfile.read(int(self.headers.get("Content-Length", 0)))
-        if self.path.startswith("/api/test-kokoro"): return self.send({"ok": True, "ms": 12, "voices": ["bf_emma"]})
+        if self.path.startswith("/api/test-speech"): return self.send({"ok": True, "ms": 12, "voices": ["bf_emma"]})
         if self.path.startswith("/api/pad"): return self.send({"ok": True, "profile": profile(), "status": {"found": True}})
         return self.send({"ok": True})
 

@@ -2,7 +2,7 @@
 
 VoiceLoop doesn't make speech itself. It sends text to [Kokoro-FastAPI](https://github.com/remsky/Kokoro-FastAPI), which wraps the open-source Kokoro model (82M parameters) in a Docker image with an OpenAI-style `/v1/audio/speech` endpoint. It runs on a CPU, and no API key or account is involved.
 
-Kokoro-FastAPI is the only server VoiceLoop has been tested with. VoiceLoop asks for model `kokoro` and checks the server at `/health`, so other OpenAI-style speech servers may not work yet.
+Kokoro-FastAPI is the default. From 0.8.2 any server with an OpenAI-style `/v1/audio/speech` endpoint works too: see [Other speech servers](#other-speech-servers).
 
 ## Where to run it
 
@@ -46,3 +46,26 @@ These were measured on 3 cores of a Ryzen 5 5600 that was also running other ser
 ## Keep it private
 
 Kokoro-FastAPI has no authentication. Don't expose port 8880 to the internet. Keep it on your LAN or a tailnet.
+
+## Other speech servers
+
+From 0.8.2, **voiceloop** works with any server that has an OpenAI-style `POST /v1/audio/speech` endpoint and can return WAV. Settings, Voice has three boxes for it:
+
+- **Address**, for example `http://my-server:8000`.
+- **Model**, the name the server expects. It's `kokoro` for Kokoro-FastAPI.
+- **API key**, only if the server asks for one. It's sent as a bearer token, stays on the PC and is left out of settings exports.
+
+**Test connection** tries `/health`, then `/v1/models`, then `/v1/audio/voices`. If the server has a voice list at `/v1/audio/voices`, the voice picker fills from it. If not, the picker turns into a text box and you type the voice name from the server's docs. **voiceloop** converts whatever WAV comes back (any sample rate, stereo, 8 to 32-bit or float) before playing it.
+
+Tested on 2026-11-10:
+
+- **Kokoro-FastAPI** v0.9.2, model `kokoro`, voice `bf_emma`.
+- **[Speaches](https://github.com/speaches-ai/speaches)** (`ghcr.io/speaches-ai/speaches:latest-cpu`) with a Piper voice. Download the model into Speaches first with `curl -X POST http://my-server:8000/v1/models/speaches-ai/piper-en_GB-alba-medium`, then set the model to `speaches-ai/piper-en_GB-alba-medium` and the voice to `alba`. Speaches can also run Kokoro (`speaches-ai/Kokoro-82M-v1.0-ONNX`, voice `af_heart`). Its own docs list the other models.
+
+These have the same endpoint, going by their docs and code, but haven't been tried with **voiceloop**:
+
+- **[LocalAI](https://github.com/mudler/LocalAI)**: the model is whichever TTS model you installed in it.
+- **[Chatterbox TTS Server](https://github.com/devnen/Chatterbox-TTS-Server)**: voices are file names such as `Emily.wav`.
+- **[Orpheus-FastAPI](https://github.com/Lex-au/Orpheus-FastAPI)**: model `orpheus`, voices such as `tara`. It needs a separate llama.cpp server.
+
+If one of these, or another server, works or fails for you, [open an issue](https://github.com/Tombo1001/voiceloop/issues) with what you set.

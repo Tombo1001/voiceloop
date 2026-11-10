@@ -36,13 +36,15 @@ All three can be the same Windows PC. VoiceLoop was built for the split case: Cl
 |---|---|---|
 | `voiceloop.exe` | Windows 10 or 11, 64-bit (tested on 11) | Nothing else. It's a single 9 MB exe |
 | `hooks/voiceloop_hook.py` | Anywhere Claude Code runs | Python 3.8 or later, standard library only |
-| Kokoro | Any machine with Docker | About 2 GB of memory. A CPU is enough |
+| Kokoro, or another speech server | Any machine with Docker | About 2 GB of memory for Kokoro. A CPU is enough |
 
 ## Install
 
 ### 1. Start Kokoro
 
 Follow [docs/kokoro.md](docs/kokoro.md). In short, run `docker compose up -d` in the `kokoro/` folder and check that `http://that-box:8880/health` answers.
+
+Already run another speech server with an OpenAI-style `/v1/audio/speech` endpoint, such as Speaches? That works too. See [Other speech servers](docs/kokoro.md#other-speech-servers).
 
 ### 2. Install VoiceLoop on the Windows PC
 
@@ -130,7 +132,7 @@ VoiceLoop only speaks replies. It doesn't listen, so it leaves dictation to Hand
 - Anyone with the token can make the PC speak and mute threads. It's in `config.json` in the install folder, and in `hook.json` (mode 0600) on the Claude Code machine.
 - The Settings panel listens on `127.0.0.1:8766` only. Each run makes a random key that the page needs, and the server checks the Host header.
 - The hook reads T3 Code's database read-only, to find thread names. It sends nothing anywhere except to the VoiceLoop address you gave it.
-- Kokoro has no authentication, so keep it off the internet too.
+- Kokoro-FastAPI has no authentication, so keep it off the internet too. If your speech server takes an API key, it's stored in the settings on the PC and left out of settings exports.
 
 ## Building from source
 
